@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drink Customization</title>
+    <link rel="stylesheet" href="drinkcustomstyle.css"> 
+</head>
+<body>
+    <div class="customization-popup">
+    <div class="popup-header">
+        </div>
+
+    <div class="customization-section">
+        <h2 class="section-title">Ice Level:</h2>
+        <div class="options-group" role="radiogroup" aria-labelledby="ice-level-title">
+            <input type="radio" id="ice-regular" name="ice-level" value="regular" checked>
+            <label for="ice-regular">Regular</label>
+
+            <input type="radio" id="ice-less" name="ice-level" value="less">
+            <label for="ice-less">Less</label>
+
+            <input type="radio" id="ice-none" name="ice-level" value="none">
+            <label for="ice-none">None</label>
+        </div>
+    </div>
+
+    <div class="customization-section">
+        <h2 class="section-title" id="sweetness-level-title">Sweetness Level:</h2>
+        <div class="options-group" role="radiogroup" aria-labelledby="sweetness-level-title">
+            <input type="radio" id="sweet-normal" name="sweet-level" value="100%" checked>
+            <label for="sweet-normal">Normal <span>100%</span></label>
+
+            <input type="radio" id="sweet-less" name="sweet-level" value="80%">
+            <label for="sweet-less">Less <span>80%</span></label>
+
+            <input type="radio" id="sweet-half" name="sweet-level" value="50%">
+            <label for="sweet-half">Half <span>50%</span></label>
+
+            <input type="radio" id="sweet-light" name="sweet-level" value="30%">
+            <label for="sweet-light">Light <span>30%</span></label>
+
+            <input type="radio" id="sweet-none" name="sweet-level" value="0%">
+            <label for="sweet-none">No Sugar <span>0%</span></label>
+        </div>
+    </div>
+
+    <div class="customization-section">
+        <h2 class="section-title">Toppings:</h2>
+        <div class="options-group toppings-grid">
+            <input type="checkbox" id="topping-pearls" name="toppings" value="pearls">
+            <label for="topping-pearls">Pearls (Boba)</label>
+
+            <input type="checkbox" id="topping-lychee" name="toppings" value="lychee">
+            <label for="topping-lychee">Lychee Jelly</label>
+
+            <input type="checkbox" id="topping-coffee" name="toppings" value="coffee">
+            <label for="topping-coffee">Coffee Jelly</label>
+            <input type="checkbox" id="topping-honey" name="toppings" value="honey">
+            <label for="topping-honey">Honey Jelly</label>
+            <input type="checkbox" id="topping-pudding" name="toppings" value="pudding">
+            <label for="topping-pudding">Pudding</label>
+            <input type="checkbox" id="topping-crystal" name="toppings" value="crystal">
+            <label for="topping-crystal">Crystal Boba</label>
+            <input type="checkbox" id="topping-icecream" name="toppings" value="icecream">
+            <label for="topping-icecream">Ice Cream</label>
+            <input type="checkbox" id="topping-creama" name="toppings" value="creama">
+            <label for="topping-creama">Creama</label>
+            <input type="checkbox" id="topping-mango" name="toppings" value="mango">
+            <label for="topping-mango">Mango Pop Boba</label>
+            <input type="checkbox" id="topping-strawberry" name="toppings" value="strawberry">
+            <label for="topping-strawberry">Strawberry Pop Boba</label>
+        </div>
+    </div>
+
+    <div class="popup-footer">
+        <button class="confirm-button" aria-label="Confirm Selection">&#10003;</button>
+    </div>
+</div>
+
+<script src="drinkcustom.js"></script>
+
+</body>
+</html>
+

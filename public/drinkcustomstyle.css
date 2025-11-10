@@ -1,0 +1,159 @@
+body {
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 20px;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.customization-popup {
+    width: 100%;
+    max-width: 650px;
+    max-height: 500px;
+    overflow-y: auto;
+    padding: 20px;
+    background-color: #f5efef;
+    border: 10px solid #990000;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    box-sizing: border-box;
+}
+
+.section-title {
+    font-size: 1.5em;
+    font-weight: 800;
+    color: #990000;
+    margin: 15px 0 10px 0;
+    user-select: none;
+}
+
+.options-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.options-group input[type="radio"],
+.options-group input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.options-group label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    background-color: #990000;
+    color: white;
+    font-weight: 600;
+    font-size: 0.9em;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.options-group label:hover {
+    background-color: #d13a3a;
+    transform: translateY(-1px);
+}
+
+.options-group label span {
+    font-size: 0.75em;
+    font-weight: 400;
+    margin-top: 2px;
+    opacity: 0.8;
+}
+
+.options-group input:checked + label {
+    background-color: #f5efef;
+    color: #990000;
+    border: 2px solid #990000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transform: scale(1.02);
+}
+
+.toppings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 8px;
+}
+
+.toppings-grid label {
+    width: 100%;
+    height: auto;
+    padding: 10px 5px;
+    box-sizing: border-box;
+}
+
+.popup-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 20px;
+}
+
+.confirm-button {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background-color: #990000;
+    color: white;
+    font-size: 2.2em;
+    line-height: 1;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    font-family: inherit;
+}
+
+.confirm-button:hover {
+    background-color: #d13a3a;
+}
+
+.confirm-button:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+#message-box {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #333;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    max-width: 90%;
+    white-space: pre-wrap;
+    text-align: center;
+}
+
+#message-box.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.google-login-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 15px; /* spacing from separator */
+}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fruity Drinks</title>
+    <link rel="stylesheet" href="customerstyle.css">
+    <link rel="stylesheet" href="drinkcustomstyle.css">
+</head>
+<body>
+    <div class="menu-container">
+        <div class="top-bar">
+            <div class="dropdown">
+                <button class="accessibility-btn" onclick="toggleDropdown()">Accessibility</button>
+                <div class="dropdown-content" id="accessibilityDropdown">
+                    <a href="#" class="lang-option" data-lang="en">English</a>
+                    <a href="#" class="lang-option" data-lang="es">Español</a>
+                    <a href="#" class="size-option" data-size="small">Text Size: Small</a>
+                    <a href="#" class="size-option" data-size="large">Text Size: Large</a>
+                </div>
+            </div>
+            <div class="cart-icon"><img src="Images/carticon.svg" alt="Cart Icon"></div>
+        </div>
+
+        <div class="main-content-area">
+            <div class="sidebar">
+                <button class="nav-button"><a href="customerallmenu.html">All</a></button>
+                <button class="nav-button"><a href="custnoncaf.html">Non-Caffienated</a></button>
+                <button class="nav-button"><a href="custiceblend.html">Ice-Blended</a></button>
+                <button class="nav-button"><a href="custmatcha.html">Matcha</a></button>
+                <button class="nav-button active">Fruity</button>
+                <button class="nav-button"><a href="custfreshbrew.html">Fresh Brew</a></button>
+                <button class="nav-button"><a href="custmilky.html">Milky</a></button>
+            </div>
+            
+            <div class="drink-items-grid"></div>
+        </div>
+    </div>
+    <script src="menu.js"></script>
+    <script src="custscript.js"></script> </body>
+</html>

@@ -1,0 +1,216 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+header {
+    width: 100%;
+    background-color: #8c001a;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.header-btn {
+    background-color: #f7f7f7;
+    color: #000;
+    border: 3px solid #000;
+    border-radius: 10px;
+    padding: 8px 15px;
+    margin-right: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    box-shadow: 2px 2px 0 #000;
+}
+
+.cart-icon {
+    position: absolute;
+    right: 20px;
+    color: #fff;
+    font-size: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.cart-container {
+    width: 90%;
+    max-width: 900px;
+    background-color: #fff;
+    border: 5px solid #8c001a;
+    border-radius: 30px;
+    margin: 40px 0;
+    padding: 20px;
+    box-shadow: 8px 8px 0 #8c001a;
+    position: relative;
+}
+
+.cart-title {
+    font-size: 36px;
+    font-weight: 900;
+    color: #8c001a;
+    margin-bottom: 20px;
+    padding-left: 10px;
+}
+
+.cart-content {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 10px;
+    padding-bottom: 70px;
+}
+
+.drink-items-section {
+    flex-grow: 1;
+    margin-right: 30px;
+}
+
+.drink-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    line-height: 1.2;
+}
+
+.drink-details {
+    display: flex;
+    align-items: flex-start;
+}
+
+.remove-icon {
+    font-size: 18px;
+    color: #8c001a;
+    margin-right: 15px;
+    line-height: 1.5;
+}
+
+.drink-name {
+    font-size: 20px;
+    font-weight: bold;
+    color: #000;
+}
+
+.drink-options {
+    font-size: 14px;
+    color: #333;
+}
+
+.drink-price {
+    font-size: 20px;
+    font-weight: bold;
+    color: #000;
+}
+
+.total-line {
+    border-top: 4px solid #000;
+    margin: 25px 0 15px;
+    width: 100%;
+}
+
+.left-section {
+    flex-grow: 1;
+    margin-right: 30px;
+}
+
+.cart-total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 24px;
+    font-weight: bold;
+    color: #000;
+    margin-top: 10px;
+}
+
+.payment-section {
+    width: 300px;
+    text-align: center;
+}
+
+.payment-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.payment-options {
+    display: flex;
+    justify-content: space-around;
+    gap: 15px;
+}
+
+.payment-btn {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    border: 5px solid #8c001a;
+    border-radius: 20px;
+    padding: 5px;
+}
+
+.card-btn {
+    background-image: none;
+}
+.cash-btn {
+    background-image: none;
+}
+
+.payment-icon {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    margin-bottom: 5px;
+}
+
+.btn-text {
+    background-color: rgba(255, 255, 255, 0.7); 
+    padding: 2px 5px;
+    border-radius: 5px;
+    margin-top: auto;
+    font-weight: 700;
+}
+
+.cancel-order-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 20px;
+    background-color: #8c001a;
+    color: #fff;
+    border: 3px solid #000;
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-size: 20px;
+    font-weight: bold;
+    box-shadow: 4px 4px 0 #000;
+}
+
+@media (max-width: 768px) {
+    .cart-content {
+        flex-direction: column;
+        padding-bottom: 90px;
+    }
+    .drink-items-section {
+        margin-right: 0;
+        margin-bottom: 30px;
+    }
+    .payment-section {
+        width: 100%;
+        margin-top: 20px;
+    }
+    .cancel-order-btn {
+        bottom: 10px;
+        right: 50%;
+        transform: translateX(50%);
+        width: 95%;
+    }
+}
