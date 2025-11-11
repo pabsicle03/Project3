@@ -113,6 +113,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (savedHighContrast === 'true') {
     document.body.classList.add('high-contrast');
   }
+  else {
+    document.body.classList.remove('high-contrast');
+  }
 
   // --- HIGH CONTRAST TOGGLE ---
   const contrastToggle = document.getElementById('contrastToggle');
@@ -249,4 +252,3 @@ function changeTextSize(size) {
     alert("Text size set to Default.");
   }
 }
-
