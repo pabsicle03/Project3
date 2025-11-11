@@ -157,3 +157,94 @@ body {
   justify-content: center;
   margin-top: 15px; /* spacing from separator */
 }
+
+
+body.text-large {
+  font-size: 1.25em; 
+}
+
+body.text-large .section-title {
+  font-size: 2em;
+}
+
+body.text-large .options-group label {
+  font-size: 1.1em;
+  padding: 12px 16px;
+  border-radius: 28px;
+}
+
+body.text-large .options-group label span {
+  font-size: 0.95em;
+}
+
+body.text-large .toppings-grid {
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+}
+
+body.text-large .customization-popup {
+  max-width: 1000px;
+  max-height: 80vh;
+  padding: 40px;
+  border-width: 14px;
+}
+
+body.text-large .confirm-button {
+  width: 70px;
+  height: 70px;
+  font-size: 2.6em;
+}
+
+/* (Optional) small text support for parity */
+body.text-small {
+  font-size: 0.9em;
+}
+/* --- HIGH CONTRAST STYLES --- */
+body.high-contrast {
+    background-color: black;
+    color: white;
+}
+
+body.high-contrast .customization-popup {
+    background-color: black;
+    border-color: white;
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.5);
+}
+
+body.high-contrast .section-title {
+    color: white;
+}
+
+body.high-contrast .options-group label {
+    background-color: black;
+    color: white;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(255, 255, 255, 0.5);
+}
+
+body.high-contrast .options-group label:hover {
+    background-color: white;
+    color: black;
+}
+
+body.high-contrast .options-group input:checked + label {
+    background-color: white;
+    color: black;
+    border-color: yellow;
+}
+
+body.high-contrast .confirm-button {
+    background-color: white;
+    color: black;
+    border: 2px solid yellow;
+}
+
+body.high-contrast .confirm-button:hover {
+    background-color: yellow;
+    color: black;
+}
+
+body.high-contrast #message-box {
+    background-color: white;
+    color: black;
+    border: 2px solid yellow;
+}

@@ -2,27 +2,31 @@
 (function () {
   const selectedDrinkRaw = sessionStorage.getItem('selectedDrink');
   if (!selectedDrinkRaw) {
-    // Fallback if someone lands here directly
+    // Redirect if someone lands here directly
     window.location.href = 'customerallmenu.html';
     return;
   }
 
   const selectedDrink = JSON.parse(selectedDrinkRaw);
 
+  // --- HIGH CONTRAST TOGGLE ---
+  const contrastToggle = document.getElementById('contrastToggle');
+  if (contrastToggle) {
+    contrastToggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.body.classList.toggle('high-contrast'); // Only toggle on click
+      const isHighContrast = document.body.classList.contains('high-contrast');
+      localStorage.setItem('highContrast', isHighContrast); // Save for next page
+    });
+  }
+
+  // --- CONFIRM BUTTON ---
   const confirmBtn = document.querySelector('.confirm-button');
   confirmBtn.addEventListener('click', () => {
-    // Collect choices
     const ice = document.querySelector('input[name="ice-level"]:checked')?.value || 'regular';
-    const ICE_LABELS = {regular: 'Regular', less: 'Less', none: 'None'};
-    const iceLevel = ICE_LABELS[ice] || 'Regular';
-
-
     const sweet = document.querySelector('input[name="sweet-level"]:checked')?.value || '100%';
+    const toppings = Array.from(document.querySelectorAll('input[name="toppings"]:checked')).map(cb => cb.value);
 
-    const toppings = Array.from(document.querySelectorAll('input[name="toppings"]:checked'))
-      .map(cb => cb.value);
-
-    // Simple topping pricing model (adjust as needed)
     const TOPPING_PRICE = 0.75;
     const toppingsCost = toppings.length * TOPPING_PRICE;
 
@@ -38,12 +42,28 @@
       qty: 1
     };
 
-    // Persist to cart in localStorage
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
     cart.push(lineItem);
     localStorage.setItem('cart', JSON.stringify(cart));
 
-    // Done — go to cart
     window.location.href = 'customerallmenu.html';
   });
 })();
+
+
+function applyTextSizeDC(size) {
+  const b = document.body;
+  b.classList.remove('text-large', 'text-small');
+
+  if (size === 'small') b.classList.add('text-small');
+  else { b.classList.add('text-large'); }
+}
+
+const savedSizeDC = localStorage.getItem('textSize') || 'normal';
+applyTextSizeDC(savedSizeDC);
+
+window.addEventListener('storage', (e) => {
+  if (e.key === 'textSize') {
+    applyTextSizeDC(e.newValue);
+  }
+});

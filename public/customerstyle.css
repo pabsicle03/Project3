@@ -70,6 +70,9 @@ a {
     font-size: 1.1em;
     font-weight: bold;
     text-align: center;
+    word-wrap: break-word;
+    white-space: normal;
+    line-height: 1.1em;
 }
 
 .nav-button.active {
@@ -181,5 +184,97 @@ a {
 }
 
 .show {
+    display: block;
+}
+
+html.text-large .drink-item, body.text-large .drink-item {
+  font-size: 1.60em; /* affects sidebar and general UI */
+}
+
+
+body.text-large .nav-button,
+body.text-large .accessibility-btn,
+body.text-large .dropdown-content a,
+html.text-large .accessibility-btn,
+html.text-large .nav-button,
+html.text-large .dropdown-content a {
+  font-size: 1.25em;
+  padding: 1.2em 1.5em;
+}
+
+/* High contrast Style */
+body.high-contrast {
+    background-color: black !important;
+    color: yellow !important;
+}
+
+/* Sidebar buttons */
+body.high-contrast .nav-button {
+    background-color: black !important;
+    color: yellow !important;
+    border: 2px solid yellow !important;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+}
+
+body.high-contrast .nav-button a {
+    color: yellow !important;
+    text-decoration: none;
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    line-height: 1.2;
+    white-space: normal; 
+}
+
+/* Active sidebar button */
+body.high-contrast .nav-button.active {
+    background-color: yellow !important;
+    color: black !important;
+    font-weight: bold;
+}
+
+/* Dropdown content */
+body.high-contrast .dropdown-content {
+    background-color: black !important;
+    color: yellow !important;
+    border: 2px solid yellow !important;
+}
+
+/* Links and buttons */
+body.high-contrast a,
+body.high-contrast button,
+body.high-contrast .accessibility-btn {
+    color: yellow !important;
+    background-color: black !important;
+    border: 2px solid yellow !important;
+    border-radius: 6px;
+}
+
+/* Drink items (cards) */
+body.high-contrast .drink-item {
+    background-color: black !important;
+    color: yellow !important;
+    border: 2px solid yellow !important;
+    border-radius: 8px;
+    padding: 8px;
+    margin-bottom: 10px;
+}
+
+/* Drink name and price */
+body.high-contrast .drink-name,
+body.high-contrast .drink-price {
+    color: yellow !important;
+    font-weight: bold;
+}
+
+/* Images - slight brightness/contrast boost */
+body.high-contrast img {
+    filter: brightness(0.9) contrast(1.5);
+}
+
+/* Dropdown visible style */
+.dropdown-content.show {
     display: block;
 }

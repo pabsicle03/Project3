@@ -5,11 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Cart</title>
     <link rel="stylesheet" href="cartstyle.css">
+    <script src="custscript.js" defer></script>
 </head>
 <body>
     <header>
         <button class="header-btn back" id="backButton">Back</button>
-        <button class="header-btn accessibility">Accessibility</button>
+        
+        <div class="dropdown">
+            <div class="dropdown-content" id="accessibilityDropdown">
+                <a href="#" class="lang-option" data-lang="en">English</a>
+                <a href="#" class="lang-option" data-lang="es">Español</a>
+                <a href="#" class="size-option" data-size="small">Text Size: Small</a>
+                <a href="#" class="size-option" data-size="large">Text Size: Large</a>
+                <hr>
+                <a href="#" id="contrastToggle">Toggle High Contrast</a>
+            </div>
+        </div>
+        
         <i class="fas fa-shopping-cart cart-icon"></i>
     </header>
 
@@ -50,6 +62,24 @@
     </main>
 
     <script>
+      // Toggle dropdown function
+      function toggleDropdown() {
+          document.getElementById("accessibilityDropdown").classList.toggle("show");
+      }
+
+      // Close dropdown if clicking outside
+      window.onclick = function(event) {
+          if (!event.target.matches('.accessibility')) {
+              const dropdowns = document.getElementsByClassName("dropdown-content");
+              for (let i = 0; i < dropdowns.length; i++) {
+                  const openDropdown = dropdowns[i];
+                  if (openDropdown.classList.contains('show')) {
+                      openDropdown.classList.remove('show');
+                  }
+              }
+          }
+      };
+
       // Back button goes to menu
       document.getElementById("backButton").addEventListener("click", () => {
         window.location.href = "customerallmenu.html";

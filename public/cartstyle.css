@@ -30,6 +30,41 @@ header {
     font-size: 16px;
     font-weight: bold;
     box-shadow: 2px 2px 0 #000;
+    cursor: pointer;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none; 
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 10;
+    border-radius: 5px;
+    top: 100%;
+    left: 0;
+    margin-top: 5px;
+}
+
+.dropdown-content a {
+    color: #8c001a;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    font-size: 0.9em;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.show {
+    display: block;
 }
 
 .cart-icon {
@@ -91,6 +126,7 @@ header {
     color: #8c001a;
     margin-right: 15px;
     line-height: 1.5;
+    cursor: pointer;
 }
 
 .drink-name {
@@ -156,6 +192,7 @@ header {
     border: 5px solid #8c001a;
     border-radius: 20px;
     padding: 5px;
+    cursor: pointer;
 }
 
 .card-btn {
@@ -192,6 +229,86 @@ header {
     font-size: 20px;
     font-weight: bold;
     box-shadow: 4px 4px 0 #000;
+    cursor: pointer;
+}
+
+/* High Contrast Style */
+body.high-contrast {
+    background-color: black !important;
+    color: yellow !important;
+}
+
+body.high-contrast header {
+    background-color: black !important;
+}
+
+body.high-contrast .header-btn {
+    background-color: black !important;
+    color: yellow !important;
+    border: 2px solid yellow !important;
+}
+
+body.high-contrast .dropdown-content {
+    background-color: black !important;
+    border: 2px solid yellow !important;
+}
+
+body.high-contrast .dropdown-content a {
+    color: yellow !important;
+}
+
+body.high-contrast .dropdown-content a:hover {
+    background-color: #333 !important;
+}
+
+body.high-contrast .cart-container {
+    background-color: black !important;
+    border: 5px solid yellow !important;
+    box-shadow: 8px 8px 0 yellow !important;
+}
+
+body.high-contrast .cart-title {
+    color: yellow !important;
+}
+
+body.high-contrast .drink-name,
+body.high-contrast .drink-options,
+body.high-contrast .drink-price,
+body.high-contrast .cart-total {
+    color: yellow !important;
+}
+
+body.high-contrast .remove-icon {
+    color: yellow !important;
+}
+
+body.high-contrast .total-line {
+    border-top: 4px solid yellow !important;
+}
+
+body.high-contrast .payment-title {
+    color: yellow !important;
+}
+
+body.high-contrast .payment-btn {
+    background-color: black !important;
+    border: 5px solid yellow !important;
+}
+
+body.high-contrast .btn-text {
+    background-color: black !important;
+    color: yellow !important;
+}
+
+body.high-contrast .cancel-order-btn {
+    background-color: black !important;
+    color: yellow !important;
+    border: 3px solid yellow !important;
+    box-shadow: 4px 4px 0 yellow !important;
+}
+
+body.high-contrast img {
+    filter: brightness(0.9) contrast(1.5);
 }
 
 @media (max-width: 768px) {
@@ -213,4 +330,54 @@ header {
         transform: translateX(50%);
         width: 95%;
     }
+}
+
+body.text-large {
+    font-size: 1.3em;
+}
+
+body.text-large .header-btn,
+body.text-large .payment-btn,
+body.text-large .cancel-order-btn {
+    font-size: 1.4em;
+    padding: 16px 24px;
+}
+
+body.text-large .cart-title {
+    font-size: 2.5em;
+}
+
+body.text-large .drink-name {
+    font-size: 1.5em;
+}
+
+body.text-large .drink-options {
+    font-size: 1.2em;
+}
+
+body.text-large .cart-total,
+body.text-large .payment-title {
+    font-size: 1.8em;
+}
+
+body.text-large .btn-text {
+    font-size: 1.3em;
+}
+
+body.text-large .cart-container {
+    width: 100%;
+    max-width: 1200px;
+    background-color: #fff;
+    border: 5px solid #8c001a;
+    border-radius: 30px;
+    margin: 40px 0;
+    padding: 20px;
+    box-shadow: 8px 8px 0 #8c001a;
+    position: relative;
+}
+
+body.text-large .drink-price {
+    font-size: 35px;
+    font-weight: bold;
+    color: #000;
 }
