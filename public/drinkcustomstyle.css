@@ -1,3 +1,4 @@
+/* REMOVE or COMMENT THIS OUT
 body {
     font-family: 'Inter', sans-serif;
     display: flex;
@@ -8,6 +9,7 @@ body {
     margin: 0;
     box-sizing: border-box;
 }
+*/
 
 .customization-popup {
     width: 100%;

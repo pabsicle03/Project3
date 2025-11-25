@@ -31,7 +31,7 @@ const pool = new Pool({
 // Health check
 app.get("/healthz", (req, res) => res.json({ ok: true, message: "server up" }));
 
-// ---------------------- MENU ----------------------
+// Menu endpoints
 app.get("/api/menu", async (req, res) => {
   try {
     const sql = `

@@ -73,7 +73,6 @@
       display: none;
     }
 
-    /* Optional separator */
     .separator {
       margin: 15px 0;
       border-top: 1px solid #ccc;
@@ -91,14 +90,12 @@
       color: #666;
     }
 
-    /* Center Google login */
     .google-login-container {
       text-align: center;
-      margin-top: 15px; /* spacing from separator */
+      margin-top: 15px;
     }
   </style>
 
-  <!-- Google Identity Services -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
 </head>
@@ -121,16 +118,13 @@
       <span class="close-btn" id="closeModal">&times;</span>
       <h2>Log In</h2>
 
-      <!-- Manual Login -->
       <input type="text" id="userId" placeholder="User ID" />
       <input type="password" id="password" placeholder="Password" />
       <button id="submitLogin">Submit</button>
       <div id="loginError">Please enter both ID and password.</div>
 
-      <!-- Separator -->
       <div class="separator"><span>OR</span></div>
 
-      <!-- Google Sign-In Button -->
       <div class="google-login-container">
         <div id="googleLoginButton"></div>
       </div>
@@ -145,7 +139,7 @@
     const submitLogin = document.getElementById('submitLogin');
     const loginError = document.getElementById('loginError');
 
-    // Guest login
+    // Guest login → customer
     guestBtn.addEventListener('click', (e) => {
       e.preventDefault();
       localStorage.setItem('userId', 0);
@@ -174,8 +168,10 @@
         return;
       }
 
+      // Save ID
       localStorage.setItem('userId', id);
       modal.style.display = 'none';
+
       // === ROLE ROUTING ===  
       if (id.startsWith("mgr")) {
         window.location.href = "/Manager/orderingtrends.html";
@@ -188,7 +184,7 @@
       }
     });
 
-    // Google Sign-In
+    // Google Login → ALWAYS CUSTOMER
     function handleCredentialResponse(response) {
       const token = response.credential;
       localStorage.setItem('googleToken', token);

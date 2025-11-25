@@ -308,3 +308,92 @@ table th {
     transform: translateY(-2px);
     box-shadow: 0 4px 6px rgba(0,0,0,0.2);
 }
+body {
+    margin: 0;
+    background: #f5f5f5;
+    font-family: "Inter", sans-serif;
+}
+
+a {
+    text-decoration: none;
+    color:#000000;
+}
+
+/* TOP NAV BAR */
+.top-bar {
+    background: #b03030;
+    padding: 15px 24px;
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+}
+
+.nav-pill {
+    background: #ffffff;
+    border: 3px solid #000000;
+    padding: 8px 26px;
+    border-radius: 30px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.nav-pill.exit {
+    margin-left: auto;
+}
+
+.nav-pill.active {
+    background: #ffffff;
+}
+
+/* MAIN PANEL */
+.panel {
+    width: 90%;
+    margin: 30px auto;
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 40px;
+    border: 12px solid #b03030;
+}
+
+.page-title {
+    font-size: 42px;
+    font-weight: 800;
+    margin-top: 0;
+}
+
+.text-line {
+    font-size: 22px;
+    margin: 6px 0;
+}
+
+/* MAIN CONTENT LAYOUT */
+.content-flex {
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+    margin-top: 30px;
+}
+
+
+
+/* RIGHT GRAPH AREA */
+.chart-title {
+    font-size: 28px;
+    margin-bottom: 0;
+    font-weight: 800;
+}
+
+.chart-sub {
+    font-size: 22px;
+    margin-top: 4px;
+    font-weight: 700;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+    .content-flex {
+        flex-direction: column;
+        align-items: center;
+    }
+}

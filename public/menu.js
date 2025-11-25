@@ -57,15 +57,15 @@ function detectSeriesFromUrl() {
 
   // Map page filenames to the exact series keys your backend returns
   const SERIES_MAP = {
-    "custnoncaf":   "Non-Caffeinated Series",
-    "custiceblend": "Ice Blended Series",
-    "custmatcha":   "Matcha Series",
-    "custfruity":   "Fruit Tea Series",
-    "custfreshbrew":"Fresh Brew Series",
-    "custmilky":    "Milky Series",
+    "/Customer/custnoncaf":   "Non-Caffeinated Series",
+    "/Customr/custiceblend": "Ice Blended Series",
+    "/Customer/custmatcha":   "Matcha Series",
+    "/Customer/custfruity":   "Fruit Tea Series",
+    "/Customer/custfreshbrew":"Fresh Brew Series",
+    "/Customer/custmilky":    "Milky Series",
 
     // Treat these as "ALL" pages:
-    "customerallmenu": null,
+    "/Customer/customerallmenu": null,
     "index":           null,
     "all":             null
   };
@@ -97,7 +97,6 @@ function appendDrinks(gridEl, drinks) {
     const price = toNumber(d.drink_price);
     const oos = isFinite(+d.qty_remaining) && +d.qty_remaining <= 0;
     const name = d.drink_name || "Unnamed";
-
     const img = d.file_name ? `/Images/${d.file_name}` : `/Images/placeholder.png`;
 
     const tile = document.createElement("div");
