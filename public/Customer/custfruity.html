@@ -3,18 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Drinks</title>
+    <title>Fruity Drinks</title>
+    <link rel="stylesheet" href="../customerstyle.css">
+    <link rel="stylesheet" href="../drinkcustomstyle.css">
 
-    <link rel="stylesheet" href="customerstyle.css">
-    <link rel="stylesheet" href="drinkcustomstyle.css">
-    <script src="custscript.js" defer></script>
-    <script src="menu.js" defer></script>
-    <script src="weather.js" defer></script>
+    <script>
+      function googleTranslateElementInit() {
+        new google.translate.TranslateElement({
+          pageLanguage: 'en',
+          includedLanguages: 'en,es',
+          autoDisplay: false
+        }, 'google_translate_element');
+      }
+    </script>
+    <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+
+    <script src="../custscript.js" defer></script>
+    <script src="../menu.js" defer></script>
+    <script src="../weather.js" defer></script>
 </head>
 <body>
+    <div id="google_translate_element"></div>
     <div class="menu-container">
         <div class="top-bar">
             <div class="dropdown">
+                <button class="accessibility-btn"><a href="../startpage.html">Back</a></button>
                 <button class="accessibility-btn" onclick="toggleDropdown()">Accessibility</button>
                 <div class="dropdown-content" id="accessibilityDropdown">
                     <a href="#" class="lang-option" data-lang="en">English</a>
@@ -25,14 +39,12 @@
                     <a href="#" id="contrastToggle">Toggle High Contrast</a>
                 </div>
             </div>
-
-            <div class="cart-icon">
-                <img src="/Images/carticon.svg" alt="Cart Icon">
-            </div>
+            <div class="cart-icon"><img src="../Images/carticon.svg" alt="Cart Icon"></div>
         </div>
 
         <div class="main-content-area">
             <div class="sidebar">
+
                 <!-- Weather Container -->
                 <div id="weatherSidebar" class="weather-widget">
                     <h3>Weather</h3>
@@ -43,18 +55,21 @@
                     <p class="weather-desc">Clear Sky</p>
                 </div>
 
-                <!-- Navigation buttons -->
-                <button class="nav-button active" data-series="ALL">All</button>
+
+                <button class="nav-button"><a href="customerallmenu.html">All</a></button>
                 <button class="nav-button"><a href="custnoncaf.html">Non-Caffienated</a></button>
                 <button class="nav-button"><a href="custiceblend.html">Ice-Blended</a></button>
                 <button class="nav-button"><a href="custmatcha.html">Matcha</a></button>
-                <button class="nav-button"><a href="custfruity.html">Fruity</a></button>
+                <button class="nav-button active">Fruity</button>
                 <button class="nav-button"><a href="custfreshbrew.html">Fresh Brew</a></button>
                 <button class="nav-button"><a href="custmilky.html">Milky</a></button>
+                <button class="nav-button"><a href="recommendation.html">Recommendation</a></button>
             </div>
-
-            <main id="menuRoot"></main> 
+            
+            <div class="drink-items-grid"></div>
         </div>
     </div>
+    <script src="../menu.js"></script>
+    <script src="../custscript.js" defer></script>
 </body>
 </html>

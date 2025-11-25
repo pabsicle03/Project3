@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Usage</title>
+    <link rel="stylesheet" href="../manager.css">
+</head>
+<body>
+    <header class="top-bar">
+        <button class="nav-pill"><a href="orderingtrends.html">Ordering Trends</a></button>
+        <button class="nav-pill"><a href="inventory.html">Inventory</a></button>
+        <button class="nav-pill"><a href="employee.html">Employee</a></button>
+        <button class="nav-pill active"><a href="productusage.html">Product Usage</a></button>
+        <button class="nav-pill"><a href="xreport.html">X-Report</a></button>
+        <button class="nav-pill"><a href="zreport.html">Z-Report</a></button>
+        <button class="nav-pill"><a href="itemedits.html">Item Edits</a></button>
+        <button class="nav-pill exit"><a href="../startpage.html">Exit Manager View</a></button>
+    </header>
+
+    <section class="panel">
+        <h1 class="page-title">Product Usage</h1>
+
+        <div class="content-flex">
+            <div class="chart-controls">
+                <div class="control-row">
+                    <label for="startDate">Start Date:</label>
+                    <input type="date" id="startDate">
+                </div>
+                <div class="control-row">
+                    <label for="endDate">End Date:</label>
+                    <input type="date" id="endDate">
+                </div>
+                <div class="control-row">
+                    <button id="loadBtn">Load Data</button>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="productUsageChart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="productusage.js"></script>
+</body>
+</html>

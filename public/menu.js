@@ -97,7 +97,8 @@ function appendDrinks(gridEl, drinks) {
     const price = toNumber(d.drink_price);
     const oos = isFinite(+d.qty_remaining) && +d.qty_remaining <= 0;
     const name = d.drink_name || "Unnamed";
-    const img = d.file_name ? `Images/${d.file_name}` : `Images/placeholder.png`;
+
+    const img = d.file_name ? `/Images/${d.file_name}` : `/Images/placeholder.png`;
 
     const tile = document.createElement("div");
     tile.className = "drink-item";

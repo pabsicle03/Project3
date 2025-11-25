@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Z-Report</title>
+    <link rel="stylesheet" href="../manager.css">
+</head>
+<body>
+    <header class="top-bar">
+        <button class="nav-pill"><a href="orderingtrends.html">Ordering Trends</a></button>
+        <button class="nav-pill"><a href="inventory.html">Inventory</a></button>
+        <button class="nav-pill"><a href="employee.html">Employee</a></button>
+        <button class="nav-pill"><a href="productusage.html">Product Usage</a></button>
+        <button class="nav-pill"><a href="xreport.html">X-Report</a></button>
+        <button class="nav-pill active"><a href="zreport.html">Z-Report</a></button>
+        <button class="nav-pill"><a href="itemedits.html">Item Edits</a></button>
+        <button class="nav-pill exit"><a href="../startpage.html">Exit Manager View</a></button>
+    </header>
+
+    <section class="panel">
+        <h1 class="page-title">Z-Report</h1>
+
+        <div class="content-flex">
+            <div class="chart-controls">
+                <div class="control-row">
+                    <label for="zReportDate">Report Date:</label>
+                    <input type="date" id="zReportDate" value="">
+                </div>
+                <div class="control-row">
+                    <button id="generateBtn">Generate Z-Report</button>
+                </div>
+                <div class="control-row">
+                    <button id="testGenerateBtn">Generate Z-Report (Test)</button>
+                </div>
+                <div class="control-row">
+                    <button id="resetBtn">Reset Daily Totals</button>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <textarea id="zReportOutput" readonly></textarea>
+            </div>
+        </div>
+    </section>
+
+    <script src="zreport.js"></script>
+</body>
+</html>

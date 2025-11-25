@@ -6,6 +6,7 @@
   <title>Sharetea Start Page</title>
   <link rel="stylesheet" href="startstyle.css">
   <script src="custscript.js" defer></script>
+
   <style>
     .modal {
       display: none;
@@ -148,7 +149,7 @@
     guestBtn.addEventListener('click', (e) => {
       e.preventDefault();
       localStorage.setItem('userId', 0);
-      window.location.href = 'customerallmenu.html';
+      window.location.href = '/Customer/customerallmenu.html';
     });
 
     // Show modal
@@ -175,7 +176,16 @@
 
       localStorage.setItem('userId', id);
       modal.style.display = 'none';
-      window.location.href = 'customerallmenu.html';
+      // === ROLE ROUTING ===  
+      if (id.startsWith("mgr")) {
+        window.location.href = "/Manager/orderingtrends.html";
+      } 
+      else if (id.startsWith("csh")) {
+        window.location.href = "/Cashier/cashierall.html";
+      } 
+      else {
+        window.location.href = "/Customer/customerallmenu.html";
+      }
     });
 
     // Google Sign-In
@@ -183,7 +193,7 @@
       const token = response.credential;
       localStorage.setItem('googleToken', token);
       modal.style.display = 'none';
-      window.location.href = 'customerallmenu.html';
+      window.location.href = '/Customer/customerallmenu.html';
     }
 
     window.onload = function () {

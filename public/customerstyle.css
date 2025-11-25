@@ -33,7 +33,7 @@ body {
 
 .cart-icon {
     width: 35px;
-    margin-left:20%;
+    margin-left: 20%;
 }
 
 .main-content-area {
@@ -54,9 +54,10 @@ body {
     gap: 10px;
     border-bottom-left-radius: 10px;
 }
+
 a {
     text-decoration: none;
-    color:#990000;
+    color: #990000;
 }
 
 .nav-button {
@@ -73,12 +74,15 @@ a {
     word-wrap: break-word;
     white-space: normal;
     line-height: 1.1em;
+    word-wrap: break-word;
+    white-space: normal;
+    line-height: 1.1em;
 }
 
 .nav-button.active {
     background-color: #ff9898;
     border: 2px solid #990000;
-    color:black;
+    color: black;
 }
 
 .nav-button a:visited {
@@ -113,21 +117,21 @@ a {
 
 .drink-image-wrapper {
     background-color: #990000;
-    width: 250px; 
-    height: 250px; 
+    width: 250px;
+    height: 250px;
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 20px; 
-    overflow: hidden; 
+    margin-bottom: 20px;
+    overflow: hidden;
 }
 
 .drink-image-wrapper img {
     width: 125%;
     height: 125%;
     object-fit: contain;
-    border-radius: 10px; 
+    border-radius: 10px;
 }
 
 .drink-name {
@@ -150,7 +154,15 @@ a {
     background-color: #f7f7f7;
     color: #000;
     border: 3px solid #000;
+    background-color: #f7f7f7;
+    color: #000;
+    border: 3px solid #000;
     border-radius: 10px;
+    padding: 8px 15px;
+    margin-right: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    box-shadow: 2px 2px 0 #000;
     padding: 8px 15px;
     margin-right: 10px;
     font-size: 16px;
@@ -159,7 +171,7 @@ a {
 }
 
 .dropdown-content {
-    display: none; 
+    display: none;
     position: absolute;
     background-color: #f9f9f9;
     min-width: 160px;
@@ -277,4 +289,17 @@ body.high-contrast img {
 /* Dropdown visible style */
 .dropdown-content.show {
     display: block;
+}
+
+#google_translate_element {
+    display: none;
+}
+
+/* Extra: hide Google’s floating tooltip banner if it appears */
+.goog-te-banner-frame.skiptranslate,
+body > .goog-te-spinner-pos {
+    display: none !important;
+}
+body {
+    top: 0 !important;
 }

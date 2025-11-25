@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventory</title>
+    <link rel="stylesheet" href="../manager.css">
+</head>
+
+<body>
+    <header class="top-bar">
+        <button class="nav-pill"><a href="orderingtrends.html">Ordering Trends</a></button>
+        <button class="nav-pill active"><a href="inventory.html">Inventory</a></button>
+        <button class="nav-pill"><a href="employee.html">Employee</a></button>
+        <button class="nav-pill"><a href="productusage.html">Product Usage</a></button>
+        <button class="nav-pill"><a href="xreport.html">X-Report</a></button>
+        <button class="nav-pill"><a href="zreport.html">Z-Report</a></button>
+        <button class="nav-pill"><a href="itemedits.html">Item Edits</a></button>
+        <button class="nav-pill exit"><a href="../startpage.html">Exit Manager View</a></button>
+    </header>
+
+    <section class="panel">
+        <h1 class="page-title">Inventory</h1>
+
+        <button id="refreshAllBtn">Refresh All</button>
+
+        <div class="content-flex">
+
+            <div class="inventory-tab">
+                <h2>Supplies</h2>
+                <button id="add-supplies" class="inventory-btn">Add Supply</button>
+                <table id="tblSupplies">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Quantity</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="inventory-tab">
+                <h2>Ingredients</h2>
+                <button id="add-ingredients" class="inventory-btn">Add Ingredient</button>
+                <table id="tblIngredients">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Quantity</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="inventory-tab">
+                <h2>Menu Items</h2>
+                <button id="add-menuitems" class="inventory-btn">Add Menu Item</button>
+                <table id="tblMenuItems">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="inventory-tab">
+                <h2>Toppings</h2>
+                <button id="add-toppings" class="inventory-btn">Add Topping</button>
+                <table id="tblToppings">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+        </div>
+    </section>
+
+    <script src="inventory.js"></script>
+</body>
+</html>

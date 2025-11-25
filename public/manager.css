@@ -1,0 +1,310 @@
+body {
+    margin: 0;
+    background: #f5f5f5;
+    font-family: "Inter", sans-serif;
+}
+
+a {
+    text-decoration: none;
+    color:#000000;
+}
+
+/* TOP NAV BAR */
+.top-bar {
+    background: #b03030;
+    padding: 15px 24px;
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+}
+
+.nav-pill {
+    background: #ffffff;
+    border: 3px solid #000000;
+    padding: 8px 26px;
+    border-radius: 30px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.nav-pill.exit {
+    margin-left: auto;
+}
+
+.nav-pill.active {
+    background: #ffffff;
+}
+
+/* MAIN PANEL */
+.panel {
+    width: 90%;
+    margin: 30px auto;
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 40px;
+    border: 12px solid #b03030;
+}
+
+.page-title {
+    font-size: 42px;
+    font-weight: 800;
+    margin-top: 0;
+}
+
+.text-line {
+    font-size: 22px;
+    margin: 6px 0;
+}
+
+/* MAIN CONTENT LAYOUT */
+.content-flex {
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+    margin-top: 30px;
+}
+
+
+
+/* RIGHT GRAPH AREA */
+.chart-title {
+    font-size: 28px;
+    margin-bottom: 0;
+    font-weight: 800;
+}
+
+.chart-sub {
+    font-size: 22px;
+    margin-top: 4px;
+    font-weight: 700;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+    .content-flex {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+table th, table td {
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+table th {
+    background-color: #a60f2d; /* Brand red header */
+    color: white;
+}
+
+/* --- Employee Table --- */
+#tblEmployees {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-family: sans-serif;
+    font-size: 14px;
+}
+
+#tblEmployees th {
+    background-color: #a60f2d;
+    color: #fff;
+    font-weight: bold;
+    padding: 10px;
+}
+
+#tblEmployees td {
+    padding: 8px;
+    border: 1px solid #ccc;
+}
+
+#tblEmployees tr.selected {
+    background-color: #ffe6e6;
+}
+
+/* --- Employee Controls Buttons --- */
+.employee-controls {
+    margin-bottom: 10px;
+}
+
+.employee-controls button {
+    background-color: #A60F2D;  /* Brand red */
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 10px;
+}
+
+.employee-controls button:hover {
+    background-color: #BF1A3A; /* Slightly lighter red */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+
+/* --- Modal --- */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.4);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: #f2f2f2;
+    padding: 20px;
+    border-radius: 10px;
+    min-width: 320px;
+    max-width: 400px;
+}
+
+.modal h2 {
+    margin-top: 0;
+    color: #a60f2d;
+}
+
+.modal label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+    color: #a60f2d;
+}
+
+.modal input {
+    width: 100%;
+    padding: 6px;
+    margin-top: 4px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.modal-buttons {
+    margin-top: 16px;
+    text-align: right;
+}
+
+.modal-buttons button {
+    margin-left: 10px;
+    padding: 6px 14px;
+    font-weight: bold;
+    border-radius: 6px;
+    border: 1px solid #000;
+    cursor: pointer;
+}
+
+
+.chart-controls {
+    margin-bottom: 20px;
+}
+
+.control-row {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.control-row label {
+    margin-right: 8px;
+}
+
+.chart-container {
+    width: 100%;
+    height: 500px;
+}
+
+/* Style for inventory buttons */
+.inventory-btn {
+    background-color: #A60F2D;  /* Brand red */
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 10px;
+}
+
+/* Hover effect */
+.inventory-btn:hover {
+    background-color: #BF1A3A; /* Slightly lighter red */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+
+/* Active / click effect */
+.inventory-btn:active {
+    background-color: #8B0C27;
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* Common button style for inventory panel */
+.inventory-btn,
+#refreshAllBtn,
+.update-btn,
+.delete-btn {
+    font-family: "Sans-Serif";
+    font-weight: bold;
+    font-size: 14px;
+    background-color: #A60F2D; /* brand red */
+    color: #fff;
+    border: 2px solid #E6E6E6; /* accent border */
+    border-radius: 8px;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.inventory-btn:hover,
+#refreshAllBtn:hover,
+.update-btn:hover,
+.delete-btn:hover {
+    background-color: #8b0b23; /* slightly darker on hover */
+    transform: scale(1.05);
+}
+
+.inventory-btn:active,
+#refreshAllBtn:active,
+.update-btn:active,
+.delete-btn:active {
+    transform: scale(0.98);
+}
+
+
+
+.control-row button {
+    background-color: #A60F2D;  /* Brand red */
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 10px;
+}
+
+.control-row button:hover {
+    background-color: #BF1A3A; /* Slightly lighter red */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}

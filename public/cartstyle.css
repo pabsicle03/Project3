@@ -39,7 +39,7 @@ header {
 }
 
 .dropdown-content {
-    display: none; 
+    display: none;
     position: absolute;
     background-color: #f9f9f9;
     min-width: 160px;
@@ -140,6 +140,26 @@ header {
     color: #333;
 }
 
+/* -------------------------
+   QUANTITY INPUT ROW
+-------------------------- */
+.quantity-row {
+    margin-top: 6px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.qty-input {
+    width: 55px;
+    height: 30px;
+    margin-left: 8px;
+    font-size: 16px;
+    padding: 3px;
+    border: 2px solid #8c001a;
+    border-radius: 6px;
+    text-align: center;
+}
+
 .drink-price {
     font-size: 20px;
     font-weight: bold;
@@ -198,6 +218,7 @@ header {
 .card-btn {
     background-image: none;
 }
+
 .cash-btn {
     background-image: none;
 }
@@ -210,7 +231,7 @@ header {
 }
 
 .btn-text {
-    background-color: rgba(255, 255, 255, 0.7); 
+    background-color: rgba(255, 255, 255, 0.7);
     padding: 2px 5px;
     border-radius: 5px;
     margin-top: auto;
@@ -232,7 +253,9 @@ header {
     cursor: pointer;
 }
 
-/* High Contrast Style */
+/* -------------------------
+   HIGH CONTRAST MODE
+-------------------------- */
 body.high-contrast {
     background-color: black !important;
     color: yellow !important;
@@ -267,10 +290,7 @@ body.high-contrast .cart-container {
     box-shadow: 8px 8px 0 yellow !important;
 }
 
-body.high-contrast .cart-title {
-    color: yellow !important;
-}
-
+body.high-contrast .cart-title,
 body.high-contrast .drink-name,
 body.high-contrast .drink-options,
 body.high-contrast .drink-price,
@@ -284,10 +304,6 @@ body.high-contrast .remove-icon {
 
 body.high-contrast .total-line {
     border-top: 4px solid yellow !important;
-}
-
-body.high-contrast .payment-title {
-    color: yellow !important;
 }
 
 body.high-contrast .payment-btn {
@@ -311,6 +327,9 @@ body.high-contrast img {
     filter: brightness(0.9) contrast(1.5);
 }
 
+/* -------------------------
+   RESPONSIVE
+-------------------------- */
 @media (max-width: 768px) {
     .cart-content {
         flex-direction: column;
@@ -331,6 +350,9 @@ body.high-contrast img {
         width: 95%;
     }
 }
+/* -------------------------
+   LARGE TEXT MODE
+-------------------------- */
 
 body.text-large {
     font-size: 1.3em;
@@ -374,10 +396,5 @@ body.text-large .cart-container {
     padding: 20px;
     box-shadow: 8px 8px 0 #8c001a;
     position: relative;
-}
-
-body.text-large .drink-price {
-    font-size: 35px;
-    font-weight: bold;
     color: #000;
 }
