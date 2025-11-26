@@ -1,4 +1,3 @@
-// drinkcustom.js
 (function () {
   const selectedDrinkRaw = sessionStorage.getItem('selectedDrink');
   if (!selectedDrinkRaw) {
@@ -9,16 +8,6 @@
 
   const selectedDrink = JSON.parse(selectedDrinkRaw);
 
-  // --- HIGH CONTRAST TOGGLE ---
-  const contrastToggle = document.getElementById('contrastToggle');
-  if (contrastToggle) {
-    contrastToggle.addEventListener('click', (e) => {
-      e.preventDefault();
-      document.body.classList.toggle('high-contrast'); // Only toggle on click
-      const isHighContrast = document.body.classList.contains('high-contrast');
-      localStorage.setItem('highContrast', isHighContrast); // Save for next page
-    });
-  }
 
   // --- CONFIRM BUTTON ---
   const confirmBtn = document.querySelector('.confirm-button');

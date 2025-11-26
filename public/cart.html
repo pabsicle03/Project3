@@ -61,30 +61,6 @@
         </div>
     </main>
 
-    <script>
-      // Toggle dropdown function
-      function toggleDropdown() {
-          document.getElementById("accessibilityDropdown").classList.toggle("show");
-      }
-
-      // Close dropdown if clicking outside
-      window.onclick = function(event) {
-          if (!event.target.matches('.accessibility')) {
-              const dropdowns = document.getElementsByClassName("dropdown-content");
-              for (let i = 0; i < dropdowns.length; i++) {
-                  const openDropdown = dropdowns[i];
-                  if (openDropdown.classList.contains('show')) {
-                      openDropdown.classList.remove('show');
-                  }
-              }
-          }
-      };
-
-      // Back button goes to menu
-      document.getElementById("backButton").addEventListener("click", () => {
-        window.location.href = "customerallmenu.html";
-      });
-    </script>
 
     <script src="cart.js"></script>
 </body>

@@ -14,6 +14,24 @@ export let cart = [];
  * }
  */
 
+/* ---------------- SessionStorage Helpers ---------------- */
+function saveCart() {
+  try {
+    sessionStorage.setItem("cashierCart", JSON.stringify(cart));
+  } catch (e) {
+    console.error("Failed to save cart:", e);
+  }
+}
+
+function loadCart() {
+  try {
+    const raw = sessionStorage.getItem("cashierCart");
+    if (raw) cart = JSON.parse(raw) || [];
+  } catch (e) {
+    console.error("Failed to load cart:", e);
+  }
+}
+
 function pageSeriesFromPath() {
   const p = window.location.pathname.toLowerCase();
 
@@ -53,11 +71,6 @@ function createToast(text) {
   setTimeout(() => toast.remove(), 2100);
 }
 
-// (keep, but no longer used – safe to delete if you want)
-function findCartItem(name) {
-  return cart.find((it) => it.name === name);
-}
-
 // ❗ NEW: always add as a separate cart line, no merging by name
 function addToCart(drink) {
   cart.push({
@@ -70,6 +83,7 @@ function addToCart(drink) {
     toppingsCost: drink.toppingsCost ?? 0,
   });
 
+  saveCart();
   refreshCartUI();
   createToast(`${drink.name} added to cart`);
 }
@@ -78,6 +92,7 @@ function addToCart(drink) {
 function removeCartItem(index) {
   if (index < 0 || index >= cart.length) return;
   cart.splice(index, 1);
+  saveCart();
   refreshCartUI();
 }
 
@@ -89,6 +104,7 @@ function changeQty(index, delta) {
   if (item.qty === 0) {
     cart.splice(index, 1);
   }
+  saveCart();
   refreshCartUI();
 }
 
@@ -120,6 +136,7 @@ function buildCartPanel() {
     if (!cart.length) return;
     if (!confirm("Clear cart?")) return;
     cart = [];
+    saveCart();
     refreshCartUI();
   });
 
@@ -242,6 +259,7 @@ async function submitCart() {
     await res.json();
     createToast("Order submitted!");
     cart = [];
+    saveCart();
     refreshCartUI();
   } catch (err) {
     console.error(err);
@@ -493,6 +511,7 @@ export async function loadDrinks(series) {
         activeCartItem.sweetness = sweet;
         activeCartItem.toppings = toppings;
         activeCartItem.toppingsCost = toppingsCost;
+        saveCart();
         refreshCartUI();
       } else {
         addToCart({
@@ -513,6 +532,7 @@ export async function loadDrinks(series) {
 
 // Initialize cashier page
 async function init() {
+  loadCart();
   buildCartPanel();
   const series = pageSeriesFromPath();
   await loadDrinks(series);
