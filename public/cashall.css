@@ -244,3 +244,59 @@ a {
   .menu-wrap { margin-right: 0; }
   .drink-grid { grid-template-columns: 1fr; }
 }
+
+/* -------- Payment Popup -------- */
+.payment-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1500;
+}
+
+.payment-modal {
+  background: #ffffff;
+  padding: 20px 24px;
+  border-radius: 16px;
+  max-width: 320px;
+  width: 90%;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.payment-modal h2 {
+  margin: 0 0 8px;
+}
+
+.payment-modal label {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.payment-modal input,
+.payment-modal select {
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.payment-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.payment-actions button {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 2px solid #111;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 600;
+}

@@ -19,21 +19,53 @@ body {
 
 .top-bar {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     padding: 15px 10px;
+    gap: 10px;
     color: white;
 }
+
+.cart-icon i {
+    font-size: 40px;
+    color: white;
+    cursor: pointer;
+}
+
+.cart-icon {
+    margin-left: auto;      /* you already have this, keep it */
+    position: relative;     /* needed for badge positioning */
+}
+
+.cart-badge {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+
+    width: 20px;
+    height: 20px;
+
+    border-radius: 50%;
+    background-color: red;
+    color: white;
+
+    font-size: 12px;
+    font-weight: bold;
+
+    display: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+    line-height: 20px;  /* ensures perfect centering vertically */
+}
+
 
 .accessibility {
     border: 1px solid white;
     padding: 5px 10px;
     border-radius: 10px;
-}
-
-.cart-icon {
-    width: 35px;
-    margin-left: 20%;
 }
 
 .main-content-area {
@@ -51,6 +83,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin-left: -100px;
     gap: 10px;
     border-bottom-left-radius: 10px;
 }
@@ -59,6 +92,55 @@ a {
     text-decoration: none;
     color: #990000;
 }
+
+/* Weather widget card */
+.weather-widget {
+    width: 90%;
+    background-color: #ffffff;
+    width: 200px;
+    color: #333;
+    border-radius: 12px;
+    padding: 12px 10px;
+    margin-bottom: 15px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* Title */
+.weather-widget h3 {
+    margin: 0 0 8px 0;
+    font-size: 1.05em;
+    font-weight: bold;
+    color: #990000;
+}
+
+/* Icon + temperature row */
+.weather-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.weather-icon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+/* Big temperature text */
+.weather-temp {
+    font-size: 1.4em;
+    font-weight: bold;
+}
+
+/* Description text */
+.weather-desc {
+    margin: 0;
+    font-size: 0.95em;
+}
+
 
 .nav-button {
     width: 80%;
@@ -126,6 +208,11 @@ a {
     margin-bottom: 20px;
     overflow: hidden;
 }
+
+.tax-item .remove-icon {
+  display: none !important;
+}
+
 
 .drink-image-wrapper img {
     width: 125%;
@@ -203,7 +290,6 @@ html.text-large .drink-item, body.text-large .drink-item {
   font-size: 1.60em; /* affects sidebar and general UI */
 }
 
-
 body.text-large .nav-button,
 body.text-large .accessibility-btn,
 body.text-large .dropdown-content a,
@@ -214,10 +300,43 @@ html.text-large .dropdown-content a {
   padding: 1.2em 1.5em;
 }
 
+/* Make cart icon larger in Large Text mode */
+body.text-large .cart-icon i,
+html.text-large .cart-icon i {
+    font-size: 55px;   /* adjust size as you like */
+}
+
+
 /* High contrast Style */
 body.high-contrast {
     background-color: black !important;
     color: yellow !important;
+}
+
+/* --- Make the overall layout high contrast --- */
+body.high-contrast .menu-container,
+body.high-contrast .top-bar,
+body.high-contrast .main-content-area {
+    background-color: black !important;
+    color: yellow !important;
+}
+
+body.high-contrast .cart-icon i {
+    color: yellow !important;
+}
+
+/* Sidebar background + separator */
+body.high-contrast .sidebar {
+    background-color: black !important;
+    color: yellow !important;
+    border-right: 2px solid yellow !important;
+}
+
+/* Weather card in sidebar */
+body.high-contrast .weather-widget {
+    background-color: black !important;
+    color: yellow !important;
+    border: 2px solid yellow !important;
 }
 
 /* Sidebar buttons */
@@ -256,7 +375,9 @@ body.high-contrast .dropdown-content {
 
 /* Links and buttons */
 body.high-contrast a,
-body.high-contrast button,
+body.high-contrast button{
+    color: yellow !important;
+}
 body.high-contrast .accessibility-btn {
     color: yellow !important;
     background-color: black !important;
@@ -295,11 +416,21 @@ body.high-contrast img {
     display: none;
 }
 
-/* Extra: hide Google’s floating tooltip banner if it appears */
 .goog-te-banner-frame.skiptranslate,
-body > .goog-te-spinner-pos {
+.goog-te-banner-frame {
     display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
 }
 body {
     top: 0 !important;
+}
+#google_translate_element, .goog-te-gadget-icon {
+    display: none !important;
+}
+
+.skiptranslate > iframe { 
+  height: 0 !important;
+  border-style: none;
+  box-shadow: none;
 }

@@ -1,20 +1,19 @@
 (function () {
-  const selectedDrinkRaw = sessionStorage.getItem('selectedDrink');
+  const selectedDrinkRaw = sessionStorage.getItem("selectedDrink");
   if (!selectedDrinkRaw) {
-    // Redirect if someone lands here directly
-    window.location.href = 'customerallmenu.html';
+    window.location.href = "customerallmenu.html";
     return;
   }
 
   const selectedDrink = JSON.parse(selectedDrinkRaw);
 
+  const confirmBtn = document.querySelector(".confirm-button");
+  confirmBtn.addEventListener("click", () => {
 
-  // --- CONFIRM BUTTON ---
-  const confirmBtn = document.querySelector('.confirm-button');
-  confirmBtn.addEventListener('click', () => {
-    const ice = document.querySelector('input[name="ice-level"]:checked')?.value || 'regular';
-    const sweet = document.querySelector('input[name="sweet-level"]:checked')?.value || '100%';
-    const toppings = Array.from(document.querySelectorAll('input[name="toppings"]:checked')).map(cb => cb.value);
+    const ice = document.querySelector("input[name='ice-level']:checked")?.value || "regular";
+    const sweet = document.querySelector("input[name='sweet-level']:checked")?.value || "100%";
+    const toppings = Array.from(document.querySelectorAll("input[name='toppings']:checked"))
+                          .map(cb => cb.value);
 
     const TOPPING_PRICE = 0.75;
     const toppingsCost = toppings.length * TOPPING_PRICE;
@@ -31,28 +30,16 @@
       qty: 1
     };
 
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
     cart.push(lineItem);
-    localStorage.setItem('cart', JSON.stringify(cart));
+    localStorage.setItem("cart", JSON.stringify(cart));
 
-    window.location.href = 'customerallmenu.html';
+    // ***** IMPORTANT PART *****
+    alert("Added to cart!"); // waits for OK
+
+    const lastUrl = sessionStorage.getItem("lastMenuUrl") || "customerallmenu.html";
+
+    // Reloads after OK is pressed
+    window.location.href = lastUrl + "?refresh=" + Date.now();
   });
 })();
-
-
-function applyTextSizeDC(size) {
-  const b = document.body;
-  b.classList.remove('text-large', 'text-small');
-
-  if (size === 'small') b.classList.add('text-small');
-  else { b.classList.add('text-large'); }
-}
-
-const savedSizeDC = localStorage.getItem('textSize') || 'normal';
-applyTextSizeDC(savedSizeDC);
-
-window.addEventListener('storage', (e) => {
-  if (e.key === 'textSize') {
-    applyTextSizeDC(e.newValue);
-  }
-});

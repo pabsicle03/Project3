@@ -14,7 +14,7 @@
         <button class="nav-pill"><a href="productusage.html">Product Usage</a></button>
         <button class="nav-pill"><a href="xreport.html">X-Report</a></button>
         <button class="nav-pill"><a href="zreport.html">Z-Report</a></button>
-        <button class="nav-pill"><a href="itemedits.html">Item Edits</a></button>
+        <!-- <button class="nav-pill"><a href="itemedits.html">Item Edits</a></button> -->
         <button class="nav-pill exit"><a href="../startpage.html">Exit Manager View</a></button>
     </header>
 
@@ -33,6 +33,8 @@
                     <tr>
                         <th>Employee ID</th>
                         <th>Employee Name</th>
+                        <th>Employee User</th>
+                        <th>Employee Password</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -51,6 +53,12 @@
 
             <label for="empName">Employee Name</label>
             <input type="text" id="empName" placeholder="Enter employee name">
+
+            <label for="empUser">Employee User</label>
+            <input type="text" id="empUser" placeholder="Enter employee user">
+
+            <label for="empPass">Employee Password</label>
+            <input type="text" id="empPass" placeholder="Enter employee password">
 
             <div class="modal-buttons">
                 <button id="cancelModal">Cancel</button>

@@ -52,28 +52,28 @@ async function initMenu() {
 
 /** Series detection with a simple filename → series map **/
 function detectSeriesFromUrl() {
+  // e.g. "/Customer/custmatcha.html" → "custmatcha"
   const file = (location.pathname.split("/").pop() || "").toLowerCase();
   const base = file.replace(/\.html?$/i, "");
 
-  // Map page filenames to the exact series keys your backend returns
+  // Map the *file names* (without .html) to the backend series names
   const SERIES_MAP = {
-    "/Customer/custnoncaf":   "Non-Caffeinated Series",
-    "/Customr/custiceblend": "Ice Blended Series",
-    "/Customer/custmatcha":   "Matcha Series",
-    "/Customer/custfruity":   "Fruit Tea Series",
-    "/Customer/custfreshbrew":"Fresh Brew Series",
-    "/Customer/custmilky":    "Milky Series",
+    custnoncaf:    "Non-Caffeinated Series",
+    custiceblend:  "Ice Blended Series",
+    custmatcha:    "Matcha Series",
+    custfruity:    "Fruit Tea Series",
+    custfreshbrew: "Fresh Brew Series",
+    custmilky:     "Milky Series",
 
-    // Treat these as "ALL" pages:
-    "/Customer/customerallmenu": null,
-    "index":           null,
-    "all":             null
+    // “All drinks” pages:
+    customerallmenu: null,
+    index:           null,
+    all:             null
   };
 
-  // If filename isn’t in the map, default to ALL
   return Object.prototype.hasOwnProperty.call(SERIES_MAP, base)
     ? SERIES_MAP[base]
-    : null;
+    : null; // default: ALL series
 }
 
 function getDrinksForSeries(seriesName, seriesObj) {
@@ -116,24 +116,33 @@ function appendDrinks(gridEl, drinks) {
       <div class="drink-price">$${price.toFixed(2)}</div>
     `;
 
-    const imgEl = tile.querySelector("img");
+        const imgEl = tile.querySelector("img");
     imgEl.addEventListener("error", () => { imgEl.src = "Images/placeholder.png"; });
 
-    // CLICK → open modal (no navigation)
+    // Pre-build drink object so we can reuse it
+    const drink = {
+      id: name.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, ""),
+      name,
+      basePrice: price
+    };
+
+    let lastTapTime = 0;
+
     tile.addEventListener("click", (e) => {
       if (tile.classList.contains("disabled")) return;
 
-      e.preventDefault();
-      e.stopPropagation();
+      const now = Date.now();
 
-      const drink = {
-        id: name.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, ""),
-        name,
-        basePrice: price
-      };
+      if (now - lastTapTime < 1000) {
+        e.preventDefault();
+        e.stopPropagation();
+        lastTapTime = 0;
 
-      if (typeof window.openMenuCustomizationModal === "function") {
-        window.openMenuCustomizationModal(drink);
+        if (typeof window.openMenuCustomizationModal === "function") {
+          window.openMenuCustomizationModal(drink);
+        }
+      } else {
+        lastTapTime = now;
       }
     });
 
@@ -289,6 +298,7 @@ function escapeAttr(s) {
 
       closeModal();
       alert('Added to cart!');
+      window.location.href = window.location.pathname + "?refresh=" + Date.now();
     });
   });
 })();

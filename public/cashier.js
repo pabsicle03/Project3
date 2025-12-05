@@ -1,4 +1,3 @@
-// public/cashier.js
 export let cart = [];
 
 /**
@@ -71,7 +70,88 @@ function createToast(text) {
   setTimeout(() => toast.remove(), 2100);
 }
 
-// ❗ NEW: always add as a separate cart line, no merging by name
+// ❗ NEW: Payment popup helpers
+let paymentOverlay = null;
+let paymentNameInput = null;
+let paymentMethodSelect = null;
+let paymentResolve = null;
+
+function ensurePaymentModal() {
+  if (paymentOverlay) return;
+
+  paymentOverlay = document.createElement("div");
+  paymentOverlay.className = "payment-overlay";
+  paymentOverlay.innerHTML = `
+    <div class="payment-modal">
+      <h2>Payment Details</h2>
+      <label for="paymentCustomerName">Customer Name</label>
+      <input type="text" id="paymentCustomerName" placeholder="Enter customer name">
+
+      <label for="paymentMethod">Payment Method</label>
+      <select id="paymentMethod">
+        <option value="cash">Cash</option>
+        <option value="card">Card</option>
+      </select>
+
+      <div class="payment-actions">
+        <button type="button" id="paymentCancel">Cancel</button>
+        <button type="button" id="paymentOk">Submit</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(paymentOverlay);
+
+  paymentNameInput = paymentOverlay.querySelector("#paymentCustomerName");
+  paymentMethodSelect = paymentOverlay.querySelector("#paymentMethod");
+
+  const cancelBtn = paymentOverlay.querySelector("#paymentCancel");
+  const okBtn = paymentOverlay.querySelector("#paymentOk");
+
+  cancelBtn.addEventListener("click", () => {
+    closePaymentModal();
+    if (paymentResolve) paymentResolve(null);
+  });
+
+  paymentOverlay.addEventListener("click", (e) => {
+    if (e.target === paymentOverlay) {
+      closePaymentModal();
+      if (paymentResolve) paymentResolve(null);
+    }
+  });
+
+  okBtn.addEventListener("click", () => {
+    const name = paymentNameInput.value.trim();
+    const method = paymentMethodSelect.value;
+
+    if (!name) {
+      alert("Please enter a customer name.");
+      return;
+    }
+
+    closePaymentModal();
+    if (paymentResolve) paymentResolve({ customerName: name, paymentMethod: method });
+  });
+}
+
+function openPaymentModal() {
+  ensurePaymentModal();
+  return new Promise((resolve) => {
+    paymentResolve = resolve;
+    paymentOverlay.style.display = "flex";
+    paymentNameInput.value = "";
+    paymentMethodSelect.value = "cash";
+    paymentNameInput.focus();
+  });
+}
+
+function closePaymentModal() {
+  if (paymentOverlay) {
+    paymentOverlay.style.display = "none";
+  }
+}
+
+// ❗ always add as a separate cart line, no merging by name
 function addToCart(drink) {
   cart.push({
     name: drink.name,
@@ -227,13 +307,28 @@ function escapeHtml(s) {
   }[m]));
 }
 
+async function getEmployeeName() {
+  const id = localStorage.getItem("userId");
+  if (!id || id === "0") return "Guest";
+
+  const res = await fetch(`/api/employee/${id}`);
+  const data = await res.json();
+  return data.ok ? data.name : "Unknown";
+}
+
 async function submitCart() {
   if (!cart.length) {
     alert("Cart is empty!");
     return;
   }
 
-  if (!confirm("Submit order to backend?")) return;
+  // 🔹 Open payment popup
+  const paymentDetails = await openPaymentModal();
+  if (!paymentDetails) {
+    // user cancelled popup
+    return;
+  }
+  const { customerName, paymentMethod } = paymentDetails;
 
   const orders = cart.map((it) => ({
     name: it.name,
@@ -244,11 +339,18 @@ async function submitCart() {
     toppingsCost: it.toppingsCost || 0,
   }));
 
+  const employeeName = await getEmployeeName();
+
   try {
     const res = await fetch("/api/orders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ orders }),
+      body: JSON.stringify({
+        orders,
+        employee_name: employeeName,
+        customer_name: customerName,
+        payment_method: paymentMethod,
+      }),
     });
 
     if (!res.ok) {

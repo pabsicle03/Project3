@@ -203,50 +203,50 @@ body.text-small {
 /* --- HIGH CONTRAST STYLES --- */
 body.high-contrast {
     background-color: black;
-    color: white;
+    color: yellow;
 }
 
 body.high-contrast .customization-popup {
     background-color: black;
-    border-color: white;
+    border-color: yellow;
     box-shadow: 0 8px 25px rgba(255, 255, 255, 0.5);
 }
 
 body.high-contrast .section-title {
-    color: white;
+    color: yellow;
 }
 
 body.high-contrast .options-group label {
     background-color: black;
-    color: white;
-    border: 2px solid white;
+    color: yellow;
+    border: 2px solid yellow;
     box-shadow: 0 2px 4px rgba(255, 255, 255, 0.5);
 }
 
 body.high-contrast .options-group label:hover {
-    background-color: white;
+    background-color: yellow;
     color: black;
 }
 
 body.high-contrast .options-group input:checked + label {
-    background-color: white;
+    background-color: yellow;
     color: black;
     border-color: yellow;
 }
 
 body.high-contrast .confirm-button {
-    background-color: white;
+    background-color: black;
     color: black;
     border: 2px solid yellow;
 }
 
 body.high-contrast .confirm-button:hover {
-    background-color: yellow;
+    background-color: black;
     color: black;
 }
 
 body.high-contrast #message-box {
-    background-color: white;
+    background-color: yellow;
     color: black;
     border: 2px solid yellow;
 }

@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <title>Ordering Trends</title>
     <link rel="stylesheet" href="../manager.css">
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -14,54 +17,36 @@
         <button class="nav-pill"><a href="productusage.html">Product Usage</a></button>
         <button class="nav-pill"><a href="xreport.html">X-Report</a></button>
         <button class="nav-pill"><a href="zreport.html">Z-Report</a></button>
-        <button class="nav-pill"><a href="itemedits.html">Item Edits</a></button>
-
         <button class="nav-pill exit"><a href="../startpage.html">Exit Manager View</a></button>
     </header>
 
     <section class="panel">
 
-        <h1 class="page-title">Ordering Trends</h1>
+        <div class="panel-header">
+            <h1 class="page-title">Ordering Trends</h1>
+            <button id="refreshTrendsBtn" class="btn-refresh">Refresh</button>
+        </div>
 
         <p class="text-line"><strong>Most Ordered Item:</strong> <span id="mostOrdered">Loading...</span></p>
         <p class="text-line"><strong>Least Ordered Item:</strong> <span id="leastOrdered">Loading...</span></p>
         <p class="text-line"><strong>Total Revenue Made:</strong> $<span id="totalRevenue">Loading...</span></p>
 
-        <div class="content-flex">
-            <!-- Pie chart -->
-            <!-- Line chart -->
+        <div class="charts-wrapper">
+
+            <div class="chart-card">
+                <h2 class="chart-title">Top-Selling Items</h2>
+                <canvas id="pieChart"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <h2 class="chart-title">Revenue by Item</h2>
+                <canvas id="lineChart"></canvas>
+            </div>
+
         </div>
 
     </section>
 
-    <script>
-        // Fetch ordering trends from backend
-        async function loadOrderingTrends() {
-            try {
-                const res = await fetch("/api/manager/orderingtrends");
-                const data = await res.json();
-
-                if (!data.ok) throw new Error(data.error || "Failed to fetch");
-
-                // Populate placeholders
-                document.getElementById("mostOrdered").textContent = `${data.mostOrdered.drink_name} (${data.mostOrdered.count})`;
-                document.getElementById("leastOrdered").textContent = `${data.leastOrdered.drink_name} (${data.leastOrdered.count})`;
-
-                const totalRevenue = data.revenue.reduce((sum, r) => sum + Number(r.revenue), 0);
-                document.getElementById("totalRevenue").textContent = totalRevenue.toFixed(2);
-
-                // Optional: you can also build charts with data.revenue
-                // e.g., a pie chart of top 10 revenue drinks
-            } catch (err) {
-                console.error("Error loading ordering trends:", err);
-                document.getElementById("mostOrdered").textContent = "Error";
-                document.getElementById("leastOrdered").textContent = "Error";
-                document.getElementById("totalRevenue").textContent = "Error";
-            }
-        }
-
-        // Run on page load
-        document.addEventListener("DOMContentLoaded", loadOrderingTrends);
-    </script>
+    <script src="orderingtrends.js"></script>
 </body>
 </html>

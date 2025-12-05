@@ -65,6 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ----- Cart elements -----
   const cartContainer = document.querySelector(".drink-items-section");
   const totalPriceEl = document.querySelector(".total-price");
+  const taxAmountEl = document.querySelector(".tax-amount");
 
   if (!cartContainer || !totalPriceEl) {
     console.warn("Cart container or total price element not found on this page.");
@@ -141,10 +142,18 @@ document.addEventListener("DOMContentLoaded", () => {
   // ----- Total calculation -----
   function recalcTotal() {
     let subtotal = 0;
+
     cart.forEach((it) => {
       subtotal += it.lineTotal || 0;
     });
-    const totalWithTax = subtotal * (1 + TAX_RATE);
+
+    const tax = subtotal * TAX_RATE;
+    const totalWithTax = subtotal + tax;
+
+    if (taxAmountEl) {
+      taxAmountEl.textContent = `$${tax.toFixed(2)}`;
+    }
+
     totalPriceEl.textContent = `$${totalWithTax.toFixed(2)}`;
   }
 
@@ -201,11 +210,47 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
+      // 🔹 Determine payment method from button (data-method or text)
+      let paymentMethod = (btn.dataset.method || btn.textContent || "").toLowerCase();
+      if (paymentMethod.includes("cash")) {
+        paymentMethod = "cash";
+      } else if (paymentMethod.includes("card")) {
+        paymentMethod = "card";
+      } else {
+        // fallback: ask
+        paymentMethod = window.confirm("Are you paying with cash? Click Cancel for card.")
+          ? "cash"
+          : "card";
+      }
+
+      // 🔹 Get customer name
+      let customerName = localStorage.getItem("customerName");
+
+      // If no stored name (guest / google), ask for it
+      if (!customerName) {
+        customerName = window.prompt("Please enter your name for the order:");
+        if (!customerName || !customerName.trim()) {
+          alert("Name is required to place an order.");
+          return;
+        }
+        customerName = customerName.trim();
+        // optional: remember it for rest of session
+        localStorage.setItem("customerName", customerName);
+      }
+
+      // 🔹 On customer side, employee is the kiosk
+      const employeeName = "Kiosk";
+
       try {
         const res = await fetch("/orders", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ orders: cart }),
+          body: JSON.stringify({
+            orders: cart,
+            employee_name: employeeName,
+            customer_name: customerName,
+            payment_method: paymentMethod,
+          }),
         });
 
         if (!res.ok) throw new Error("Order submission failed");
@@ -229,6 +274,9 @@ document.addEventListener("DOMContentLoaded", () => {
         cart = [];
         cartContainer.innerHTML = "<p>Your cart is empty.</p>";
         totalPriceEl.textContent = "$0.00";
+
+        const taxAmountEl = document.querySelector(".tax-amount");
+        if (taxAmountEl) taxAmountEl.textContent = "$0.00";
       }
     });
   }

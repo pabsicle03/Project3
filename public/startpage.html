@@ -108,6 +108,7 @@
       <div class="button-area">
         <a href="#" class="btn btn-login" id="loginBtn">Log In</a>
         <a href="#" class="btn btn-guest" id="guestBtn">Continue as Guest</a>
+        <a href="#" class="btn btn-login" id="registerBtn">Register</a>
       </div>
     </div>
   </div>
@@ -131,6 +132,23 @@
     </div>
   </div>
 
+  <!-- Register Modal -->
+  <div id="registerModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" id="closeRegister">&times;</span>
+      <h2>Create Account</h2>
+
+      <input type="text" id="regName" placeholder="Full Name" />
+      <input type="text" id="regUsername" placeholder="Username" />
+      <input type="password" id="regPassword" placeholder="Password" />
+      <input type="email" id="regEmail" placeholder="Email" />
+
+      <button id="submitRegister">Register</button>
+      <div id="registerError" style="color:red;font-size:0.9em;margin-top:8px;display:none;"></div>
+    </div>
+  </div>
+
+
   <script>
     const loginBtn = document.getElementById('loginBtn');
     const guestBtn = document.getElementById('guestBtn');
@@ -138,13 +156,20 @@
     const closeModal = document.getElementById('closeModal');
     const submitLogin = document.getElementById('submitLogin');
     const loginError = document.getElementById('loginError');
+    const registerBtn = document.getElementById('registerBtn');
+    const registerModal = document.getElementById('registerModal');
+    const closeRegister = document.getElementById('closeRegister');
+    const submitRegister = document.getElementById('submitRegister');
+    const registerError = document.getElementById('registerError');
 
     // Guest login → customer
     guestBtn.addEventListener('click', (e) => {
       e.preventDefault();
       localStorage.setItem('userId', 0);
+      localStorage.removeItem('customerName');
       window.location.href = '/Customer/customerallmenu.html';
     });
+
 
     // Show modal
     loginBtn.addEventListener('click', (e) => {
@@ -157,32 +182,108 @@
     closeModal.addEventListener('click', () => modal.style.display = 'none');
     window.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
 
-    // Manual login
-    submitLogin.addEventListener('click', () => {
-      const id = document.getElementById('userId').value.trim();
-      const password = document.getElementById('password').value;
+    // Show register modal
+    registerBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      registerModal.style.display = 'block';
+      registerError.style.display = 'none';
+    });
 
-      if (!id || !password) {
-        loginError.textContent = "Please enter both ID and password.";
-        loginError.style.display = 'block';
+    // Close register modal
+    closeRegister.addEventListener('click', () => registerModal.style.display = 'none');
+    window.addEventListener('click', (e) => {
+      if (e.target === registerModal) registerModal.style.display = 'none';
+    });
+
+    // Register new customer
+    submitRegister.addEventListener('click', async () => {
+      const name = document.getElementById('regName').value.trim();
+      const username = document.getElementById('regUsername').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const email = document.getElementById('regEmail').value.trim();
+
+      if (!name || !username || !password || !email) {
+        registerError.textContent = "Please fill out all fields.";
+        registerError.style.display = 'block';
         return;
       }
 
-      // Save ID
-      localStorage.setItem('userId', id);
-      modal.style.display = 'none';
+      try {
+        const resp = await fetch("/api/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, username, password, email })
+        });
 
-      // === ROLE ROUTING ===  
-      if (id.startsWith("mgr")) {
-        window.location.href = "/Manager/orderingtrends.html";
-      } 
-      else if (id.startsWith("csh")) {
-        window.location.href = "/Cashier/cashierall.html";
-      } 
-      else {
+        const data = await resp.json();
+
+        if (!data.ok) {
+          registerError.textContent = data.error || "Registration failed.";
+          registerError.style.display = 'block';
+          return;
+        }
+
+        // Optional: auto-log them in as customer
+        localStorage.setItem("userId", data.customerId);
+        localStorage.setItem("customerName", name);
+
+        registerModal.style.display = 'none';
         window.location.href = "/Customer/customerallmenu.html";
+      } catch (err) {
+        console.error(err);
+        registerError.textContent = "Server error. Please try again.";
+        registerError.style.display = 'block';
       }
     });
+
+
+    // Manual login
+    submitLogin.addEventListener('click', async () => {
+    const id = document.getElementById('userId').value.trim();
+    const password = document.getElementById('password').value;
+
+    const resp = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, password })
+    });
+
+    const data = await resp.json();
+
+    if (!data.ok) {
+      loginError.textContent = data.message || "Invalid login.";
+      loginError.style.display = 'block';
+      return;
+    }
+
+    // 🔹 Clear any old guest/customer name so it doesn't linger
+    localStorage.removeItem("customerName");
+
+    modal.style.display = 'none';
+
+    if (data.role === "manager") {
+      // you can store a manager id if you want, but it's not required
+      localStorage.setItem("userId", "manager");
+      window.location.href = "/Manager/orderingtrends.html";
+
+    } else if (data.role === "cashier") {
+      // cashier: use employeeId returned from /api/login
+      localStorage.setItem("userId", data.employeeId);
+      window.location.href = "/Cashier/cashierall.html";
+
+    } else if (data.role === "customer") {
+      // customer: save their DB id + real name and use that in orders
+      localStorage.setItem("userId", data.customerId);
+      localStorage.setItem("customerName", data.customerName);
+      window.location.href = "/Customer/customerallmenu.html";
+
+    } else {
+      // fallback: treat as customer
+      window.location.href = "/Customer/customerallmenu.html";
+    }
+});
+
+
 
     // Google Login → ALWAYS CUSTOMER
     function handleCredentialResponse(response) {
@@ -193,6 +294,16 @@
     }
 
     window.onload = function () {
+      if (typeof clearAccessibilityPrefs === 'function') {
+        clearAccessibilityPrefs();
+      }
+
+      // default language + fresh cart
+      localStorage.setItem('language', 'en');
+      localStorage.removeItem("cart");
+
+      sessionStorage.removeItem("cashierCart");
+
       google.accounts.id.initialize({
         client_id: '834334576099-koeo9claok53pvmlqm6q2adfvklme2co.apps.googleusercontent.com',
         callback: handleCredentialResponse

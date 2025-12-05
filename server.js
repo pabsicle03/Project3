@@ -15,9 +15,11 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 // Serve static files from public/
-app.use(express.static(path.join(__dirname, "public"), { extensions: ["html"] }));
+app.use(
+  express.static(path.join(__dirname, "public"), { extensions: ["html"] })
+);
 
-// Serve images separately (optional if Images is inside public)
+// Serve images
 app.use("/Images", express.static(path.join(__dirname, "public", "Images")));
 
 app.use(express.json());
@@ -25,13 +27,18 @@ app.use(express.json());
 // Database setup
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
+  ssl:
+    process.env.NODE_ENV === "production"
+      ? { rejectUnauthorized: false }
+      : false,
 });
 
-// Health check
-app.get("/healthz", (req, res) => res.json({ ok: true, message: "server up" }));
+// ---------------------- HEALTH CHECK ----------------------
+app.get("/healthz", (req, res) =>
+  res.json({ ok: true, message: "server up" })
+);
 
-// Menu endpoints
+// ---------------------- MENU ENDPOINTS ----------------------
 app.get("/api/menu", async (req, res) => {
   try {
     const sql = `
@@ -67,11 +74,13 @@ app.get("/api/drinks", async (req, res) => {
 
     const { rows } = await pool.query(q, params);
 
-    const data = rows.map(r => ({
+    const data = rows.map((r) => ({
       name: r.drink_name,
       series: r.series_name,
       price: Number(r.drink_price ?? 0),
-      imageUrl: r.file_name ? `/Images/${r.file_name}` : `/Images/placeholder.png`,
+      imageUrl: r.file_name
+        ? `/Images/${r.file_name}`
+        : `/Images/placeholder.png`,
     }));
 
     res.json({ drinks: data });
@@ -81,11 +90,28 @@ app.get("/api/drinks", async (req, res) => {
   }
 });
 
-// ---------------------- ORDERS ----------------------
+// ---------------------- EMPLOYEE LOOKUP (for cashier) ----------------------
+app.get("/api/employee/:id", async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      "SELECT employee_name FROM employeeid WHERE employee_id = $1",
+      [req.params.id]
+    );
 
-// shared handler so you can support both /orders and /api/orders
+    if (rows.length === 0) {
+      return res.json({ ok: false, error: "Employee not found" });
+    }
+
+    res.json({ ok: true, name: rows[0].employee_name });
+  } catch (err) {
+    console.error("Error fetching employee:", err);
+    res.status(500).json({ ok: false, error: "Failed to fetch employee" });
+  }
+});
+
+// ---------------------- ORDERS (CASHIER + CUSTOMER) ----------------------
 async function handleOrdersPost(req, res) {
-  const { orders } = req.body;
+  const { orders, employee_name, customer_name, payment_method } = req.body;
 
   if (!Array.isArray(orders) || orders.length === 0) {
     return res.status(400).json({ error: "No orders provided" });
@@ -95,8 +121,9 @@ async function handleOrdersPost(req, res) {
     for (const o of orders) {
       await pool.query(
         `INSERT INTO orders 
-          (drink_name, ice_level, sweetness_level, topping_used, drink_price, topping_price, employeeid_managerid, allergies, order_timestamp)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())`,
+          (drink_name, ice_level, sweetness_level, topping_used, 
+           drink_price, topping_price, employee_name, customer_name, payment_method, order_timestamp)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())`,
         [
           o.name,
           o.iceLevel,
@@ -104,8 +131,9 @@ async function handleOrdersPost(req, res) {
           Array.isArray(o.toppings) ? o.toppings.join(", ") : "",
           o.basePrice,
           o.toppingsCost,
-          "00001",
-          "N/A"
+          employee_name || null,
+          customer_name || null,
+          payment_method || null,
         ]
       );
     }
@@ -122,23 +150,28 @@ app.post("/orders", handleOrdersPost); // alias for older front-end code
 
 // ---------------------- BASIC PAGES ----------------------
 
-// Serve startpage
+// start page
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "startpage.html"));
 });
 
-// Serve cashier pages
+// cashier pages
 app.get("/cashier/:page", (req, res) => {
   const page = req.params.page;
   res.sendFile(path.join(__dirname, "public", "cashier", page));
 });
 
-// Serve manager pages
+// manager pages
 app.get("/manager/:page", (req, res) => {
   const page = req.params.page;
   const allowedPages = [
-    "employee", "inventory", "itemedits",
-    "orderingtrends", "productusage", "xreport", "zreport"
+    "employee",
+    "inventory",
+    "itemedits",
+    "orderingtrends",
+    "productusage",
+    "xreport",
+    "zreport",
   ];
 
   if (!allowedPages.includes(page)) {
@@ -152,8 +185,10 @@ app.get("/manager/:page", (req, res) => {
 app.get("/api/weather", async (req, res) => {
   try {
     const apiKey = process.env.OPENWEATHER_KEY;
-    const city = "College Station,US"; // hardcoded for now
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&units=imperial&appid=${apiKey}`;
+    const city = "College Station,US";
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(
+      city
+    )}&units=imperial&appid=${apiKey}`;
 
     const response = await fetch(url);
     if (!response.ok) {
@@ -169,7 +204,112 @@ app.get("/api/weather", async (req, res) => {
   }
 });
 
-// ---------------------- ORDERING TRENDS ----------------------
+// ---------------------- CUSTOMER REGISTER ----------------------
+app.post("/api/register", async (req, res) => {
+  const { name, username, password, email } = req.body;
+
+  if (!name || !username || !password || !email) {
+    return res
+      .status(400)
+      .json({ ok: false, error: "Missing name, username, password, or email" });
+  }
+
+  try {
+    // Check if username already exists
+    const existing = await pool.query(
+      "SELECT customer_id FROM customers WHERE customer_user = $1",
+      [username]
+    );
+    if (existing.rows.length > 0) {
+      return res
+        .status(400)
+        .json({ ok: false, error: "Username already taken" });
+    }
+
+    const insert = await pool.query(
+      `INSERT INTO customers (customer_user, customer_pass, customer_name, customer_email)
+       VALUES ($1, $2, $3, $4)
+       RETURNING customer_id`,
+      [username, password, name, email]
+    );
+
+    const newId = insert.rows[0].customer_id;
+    res.json({ ok: true, customerId: newId });
+  } catch (err) {
+    console.error("Register error:", err);
+    res.status(500).json({ ok: false, error: "Server error during register" });
+  }
+});
+
+// ---------------------- LOGIN (MANAGER + EMPLOYEE + CUSTOMER) ----------------------
+app.post("/api/login", async (req, res) => {
+  const { id, password } = req.body;
+
+  if (!id || !password) {
+    return res.status(400).json({ ok: false, message: "Missing credentials" });
+  }
+
+  try {
+    // 1️⃣ MANAGER LOGIN
+    const mgr = await pool.query(
+      "SELECT m_user, m_pass FROM managerid WHERE m_user = $1",
+      [id]
+    );
+
+    if (mgr.rows.length > 0) {
+      if (mgr.rows[0].m_pass === password) {
+        return res.json({ ok: true, role: "manager" });
+      } else {
+        return res.json({ ok: false, message: "Invalid password" });
+      }
+    }
+
+    // 2️⃣ EMPLOYEE LOGIN
+    const emp = await pool.query(
+      "SELECT employee_id, e_user, e_pass FROM employeeid WHERE e_user = $1",
+      [id]
+    );
+
+    if (emp.rows.length > 0) {
+      if (emp.rows[0].e_pass === password) {
+        return res.json({
+          ok: true,
+          role: "cashier",
+          employeeId: emp.rows[0].employee_id,
+        });
+      } else {
+        return res.json({ ok: false, message: "Invalid password" });
+      }
+    }
+
+    // 3️⃣ CUSTOMER LOGIN
+    const cust = await pool.query(
+      "SELECT customer_id, customer_pass, customer_name FROM customers WHERE customer_user = $1",
+      [id]
+    );
+
+    if (cust.rows.length > 0) {
+      if (cust.rows[0].customer_pass === password) {
+        return res.json({
+          ok: true,
+          role: "customer",
+          customerId: cust.rows[0].customer_id,
+          customerName: cust.rows[0].customer_name,
+        });
+      } else {
+        return res.json({ ok: false, message: "Invalid password" });
+      }
+    }
+
+    // Nobody matched
+    return res.json({ ok: false, message: "User not found" });
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ ok: false, message: "Server error" });
+  }
+});
+
+// ---------------------- ORDERING TRENDS (MANAGER) ----------------------
 app.get("/api/manager/orderingtrends", async (req, res) => {
   try {
     const mostOrdered = await pool.query(`
@@ -200,20 +340,23 @@ app.get("/api/manager/orderingtrends", async (req, res) => {
       ok: true,
       mostOrdered: mostOrdered.rows[0],
       leastOrdered: leastOrdered.rows[0],
-      revenue: revenue.rows
+      revenue: revenue.rows,
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ ok: false, error: "Failed to fetch ordering trends" });
+    res
+      .status(500)
+      .json({ ok: false, error: "Failed to fetch ordering trends" });
   }
 });
 
-// ---------------------- INVENTORY ----------------------
+// ---------------------- INVENTORY (MANAGER) ----------------------
 
 // GET inventory
 app.get("/api/manager/inventory/:type", async (req, res) => {
   const type = req.params.type.toLowerCase();
-  let table = "", columns = "";
+  let table = "",
+    columns = "";
 
   switch (type) {
     case "supplies":
@@ -237,19 +380,24 @@ app.get("/api/manager/inventory/:type", async (req, res) => {
   }
 
   try {
-    const { rows } = await pool.query(`SELECT ${columns} FROM ${table} ORDER BY 1`);
+    const { rows } = await pool.query(
+      `SELECT ${columns} FROM ${table} ORDER BY 1`
+    );
     res.json({ ok: true, items: rows });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ ok: false, error: "Failed to fetch inventory" });
+    res
+      .status(500)
+      .json({ ok: false, error: "Failed to fetch inventory" });
   }
 });
 
-// POST: add new item
+// POST inventory item
 app.post("/api/manager/inventory/:type", async (req, res) => {
   const type = req.params.type.toLowerCase();
   const item = req.body;
-  let sql = "", params = [];
+  let sql = "",
+    params = [];
 
   try {
     switch (type) {
@@ -278,14 +426,15 @@ app.post("/api/manager/inventory/:type", async (req, res) => {
   }
 });
 
-// PUT: update item (quantity/price only, no renaming)
+// PUT inventory item
 app.put("/api/manager/inventory/:type/:name", async (req, res) => {
   const type = req.params.type.toLowerCase();
   const name = req.params.name;
   const item = req.body;
 
   try {
-    let sql = "", params = [];
+    let sql = "",
+      params = [];
 
     switch (type) {
       case "supplies":
@@ -313,7 +462,7 @@ app.put("/api/manager/inventory/:type/:name", async (req, res) => {
   }
 });
 
-// DELETE item (cascade safe)
+// DELETE inventory item
 app.delete("/api/manager/inventory/:type", async (req, res) => {
   const type = req.params.type.toLowerCase();
   const { name } = req.body;
@@ -324,11 +473,17 @@ app.delete("/api/manager/inventory/:type", async (req, res) => {
         await pool.query(`DELETE FROM supplies WHERE name=$1`, [name]);
         break;
       case "ingredients":
-        await pool.query(`DELETE FROM menu_item_ingredients WHERE ingredient_name=$1`, [name]);
+        await pool.query(
+          `DELETE FROM menu_item_ingredients WHERE ingredient_name=$1`,
+          [name]
+        );
         await pool.query(`DELETE FROM ingredients WHERE name=$1`, [name]);
         break;
       case "menuitems":
-        await pool.query(`DELETE FROM menu_item_ingredients WHERE menu_item_name=$1`, [name]);
+        await pool.query(
+          `DELETE FROM menu_item_ingredients WHERE menu_item_name=$1`,
+          [name]
+        );
         await pool.query(`DELETE FROM menu_items WHERE name=$1`, [name]);
         break;
       case "toppings":
@@ -345,55 +500,62 @@ app.delete("/api/manager/inventory/:type", async (req, res) => {
   }
 });
 
-// ---------------------- EMPLOYEES ----------------------
+// ---------------------- EMPLOYEES (MANAGER) ----------------------
 app.get("/api/manager/employees", async (req, res) => {
   try {
     const { rows } = await pool.query(
-      "SELECT employee_id, employee_name FROM employeeid ORDER BY employee_id"
+      "SELECT employee_id, employee_name, e_user, e_pass FROM employeeid ORDER BY employee_id"
     );
     res.json({ ok: true, employees: rows });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ ok: false, error: "Failed to fetch employees" });
+    res
+      .status(500)
+      .json({ ok: false, error: "Failed to fetch employees" });
   }
 });
 
-// POST: add or update employee
 app.post("/api/manager/employees", async (req, res) => {
-  const { employee_id, employee_name } = req.body;
-  if (!employee_id || !employee_name) {
+  const { employee_id, employee_name, e_user, e_pass } = req.body;
+
+  if (!employee_id || !employee_name || !e_user || !e_pass) {
     return res.status(400).json({ ok: false, error: "Missing fields" });
   }
 
   try {
     const sql = `
-      INSERT INTO employeeid (employee_id, employee_name)
-      VALUES ($1, $2)
+      INSERT INTO employeeid (employee_id, employee_name, e_user, e_pass)
+      VALUES ($1, $2, $3, $4)
       ON CONFLICT (employee_id)
-      DO UPDATE SET employee_name = EXCLUDED.employee_name
+      DO UPDATE SET
+        employee_name = EXCLUDED.employee_name,
+        e_user        = EXCLUDED.e_user,
+        e_pass        = EXCLUDED.e_pass
     `;
-    await pool.query(sql, [employee_id, employee_name]);
+    await pool.query(sql, [employee_id, employee_name, e_user, e_pass]);
     res.json({ ok: true });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ ok: false, error: "Failed to add/update employee" });
+    res
+      .status(500)
+      .json({ ok: false, error: "Failed to add/update employee" });
   }
 });
 
-// DELETE: remove employee
 app.delete("/api/manager/employees/:id", async (req, res) => {
   const id = req.params.id;
   try {
-    await pool.query("DELETE FROM employeeid WHERE employee_id=$1", [id]);
+    await pool.query("DELETE FROM employeeid WHERE employee_id = $1", [id]);
     res.json({ ok: true });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ ok: false, error: "Failed to delete employee" });
+    res
+      .status(500)
+      .json({ ok: false, error: "Failed to delete employee" });
   }
 });
 
 // ---------------------- PRODUCT USAGE (MANAGER) ----------------------
-// NOTE: path updated to /api/productusage to match frontend JS
 app.get("/api/productusage", async (req, res) => {
   const { start, end } = req.query;
 
@@ -417,10 +579,11 @@ app.get("/api/productusage", async (req, res) => {
   }
 });
 
-// ---------------------- X-REPORT API ----------------------
+// ---------------------- X-REPORT (MANAGER) ----------------------
 app.get("/api/xreport", async (req, res) => {
   const { date, metric } = req.query;
-  if (!date || !metric) return res.status(400).json({ error: "Missing parameters" });
+  if (!date || !metric)
+    return res.status(400).json({ error: "Missing parameters" });
 
   let sql = "";
   switch (metric) {
@@ -447,12 +610,12 @@ app.get("/api/xreport", async (req, res) => {
     case "salesByEmployee":
       sql = `
         SELECT EXTRACT(HOUR FROM order_timestamp) AS hour,
-               employeeid_managerid,
+               employee_name,
                SUM(drink_price + topping_price) AS total_sales
         FROM orders
         WHERE DATE(order_timestamp) = $1
-        GROUP BY hour, employeeid_managerid
-        ORDER BY hour, employeeid_managerid;
+        GROUP BY hour, employee_name
+        ORDER BY hour, employee_name;
       `;
       break;
     default:
@@ -465,18 +628,19 @@ app.get("/api/xreport", async (req, res) => {
     const values = [];
 
     if (metric === "salesByEmployee") {
-      rows.forEach(r => {
-        labels.push(`${String(r.hour).padStart(2, "0")}:00 (${r.employeeid_managerid})`);
+      rows.forEach((r) => {
+        const hourLabel = `${String(r.hour).padStart(2, "0")}:00`;
+        const empLabel = r.employee_name || "Unknown";
+        labels.push(`${hourLabel} (${empLabel})`);
         values.push(Number(r.total_sales));
       });
     } else if (metric === "totalSales") {
-      rows.forEach(r => {
+      rows.forEach((r) => {
         labels.push(`${String(r.hour).padStart(2, "0")}:00`);
         values.push(Number(r.total_sales));
       });
     } else {
-      // numOrders
-      rows.forEach(r => {
+      rows.forEach((r) => {
         labels.push(`${String(r.hour).padStart(2, "0")}:00`);
         values.push(Number(r.num_orders));
       });
@@ -489,7 +653,7 @@ app.get("/api/xreport", async (req, res) => {
   }
 });
 
-// ---------------------- Z-REPORT ROUTES ----------------------
+// ---------------------- Z-REPORT (MANAGER) ----------------------
 app.get("/api/zreport", async (req, res) => {
   const { date, test } = req.query;
   if (!date) return res.status(400).json({ error: "Date required" });
@@ -506,16 +670,16 @@ app.get("/api/zreport", async (req, res) => {
     );
 
     const employeesResult = await pool.query(
-      `SELECT DISTINCT employeeid_managerid
+      `SELECT DISTINCT employee_name
        FROM orders
        WHERE DATE(order_timestamp) = $1
-       ORDER BY employeeid_managerid`,
+       ORDER BY employee_name`,
       [date]
     );
 
     let totalSales = Number(totalsResult.rows[0].total_sales || 0);
     let totalOrders = Number(totalsResult.rows[0].total_orders || 0);
-    let tax = totalSales * 0.10;
+    let tax = totalSales * 0.1;
     let totalCash = totalSales + tax;
 
     let report = `===== DAILY Z-REPORT =====\n`;
@@ -529,14 +693,14 @@ app.get("/api/zreport", async (req, res) => {
     if (employeesResult.rows.length === 0) {
       report += "(No employees recorded today.)\n";
     } else {
-      employeesResult.rows.forEach(emp => {
-        report += `• Employee ID: ${emp.employeeid_managerid}\n`;
+      employeesResult.rows.forEach((emp) => {
+        const name = emp.employee_name || "Unknown";
+        report += `• Employee: ${name}\n`;
       });
     }
 
-    report += "\n===========================\n";
+    report += `\n===========================\n`;
 
-    // Only log non-test runs
     if (!isTest) {
       await pool.query(
         `INSERT INTO zreport_log(report_date) VALUES($1) ON CONFLICT DO NOTHING`,

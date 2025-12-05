@@ -308,92 +308,129 @@ table th {
     transform: translateY(-2px);
     box-shadow: 0 4px 6px rgba(0,0,0,0.2);
 }
-body {
-    margin: 0;
-    background: #f5f5f5;
-    font-family: "Inter", sans-serif;
+
+/* Info panel */
+.info-box {
+    background: #f7f7f7;
+    padding: 15px 20px;
+    border: 2px solid #ccc;
+    border-radius: 12px;
+    margin-bottom: 20px;
 }
 
-a {
-    text-decoration: none;
-    color:#000000;
-}
-
-/* TOP NAV BAR */
-.top-bar {
-    background: #b03030;
-    padding: 15px 24px;
+/* Header row alignment */
+.header-row {
     display: flex;
-    justify-content: center;
-    gap: 40px;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.nav-pill {
-    background: #ffffff;
-    border: 3px solid #000000;
-    padding: 8px 26px;
-    border-radius: 30px;
-    font-size: 15px;
-    font-weight: 700;
+/* Trend panels */
+.trends-flex {
+    display: flex;
+    gap: 20px;
+}
+
+.trends-panel {
+    flex: 1;
+    background: white;
+    border: 2px solid #ccc;
+    border-radius: 12px;
+    padding: 15px;
+}
+
+.trends-panel h2 {
+    margin-bottom: 10px;
+    color: #a60f2d;
+}
+
+/* Tables */
+.trends-panel table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.trends-panel th {
+    background: #a60f2d;
+    color: white;
+    font-weight: bold;
+    border-bottom: 2px solid #000;
+    padding: 8px;
+    text-align: left;
+}
+
+.trends-panel td {
+    padding: 6px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Hover row */
+.trends-panel tbody tr:hover {
+    background: #f3d4d8;
+}
+
+/* Manager UI button */
+.manager-btn {
+    background: white;
+    border: 2px solid black;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-weight: bold;
     cursor: pointer;
 }
 
-.nav-pill.exit {
-    margin-left: auto;
+.manager-btn:hover {
+    background: #eee;
 }
 
-.nav-pill.active {
-    background: #ffffff;
+/* Refresh Button */
+.btn-refresh {
+    background-color: #A60F2D;  /* Brand red */
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 10px;
 }
 
-/* MAIN PANEL */
-.panel {
-    width: 90%;
-    margin: 30px auto;
-    background: #ffffff;
-    padding: 40px;
-    border-radius: 40px;
-    border: 12px solid #b03030;
+.btn-refresh:hover {
+    background-color: #BF1A3A; /* Slightly lighter red */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
 }
 
-.page-title {
-    font-size: 42px;
-    font-weight: 800;
-    margin-top: 0;
-}
-
-.text-line {
-    font-size: 22px;
-    margin: 6px 0;
-}
-
-/* MAIN CONTENT LAYOUT */
-.content-flex {
+/* Header of the panel with title + refresh */
+.panel-header {
     display: flex;
     justify-content: space-between;
-    gap: 40px;
-    margin-top: 30px;
+    align-items: center;
+    margin-bottom: 10px;
 }
 
+/* Wrapper for both charts */
+.charts-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 25px;
+    justify-content: center;
+    margin-top: 20px;
+}
 
+/* Chart container */
+.chart-card {
+    width: 48%;
+    min-width: 500px;
+    padding: 10px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
 
-/* RIGHT GRAPH AREA */
 .chart-title {
-    font-size: 28px;
-    margin-bottom: 0;
-    font-weight: 800;
-}
-
-.chart-sub {
-    font-size: 22px;
-    margin-top: 4px;
-    font-weight: 700;
-}
-
-/* RESPONSIVE */
-@media (max-width: 900px) {
-    .content-flex {
-        flex-direction: column;
-        align-items: center;
-    }
+    margin-bottom: 10px;
+    text-align: center;
 }
