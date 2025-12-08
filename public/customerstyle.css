@@ -79,11 +79,11 @@ body {
 
 .sidebar {
     background-color: #990000;
-    padding: 10px 0;
+    padding: 30px 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-left: -100px;
+    margin-left: -50px;
     gap: 10px;
     border-bottom-left-radius: 10px;
 }
@@ -434,3 +434,169 @@ body {
   border-style: none;
   box-shadow: none;
 }
+
+.recommendation-card {
+  padding: 15px 20px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  text-align: center;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: transform 0.2s;
+}
+
+.recommendation-card:hover {
+  transform: translateY(-3px);
+}
+
+.recommendation-card.hot {
+  background: linear-gradient(90deg, #ff4e50, #f9d423);
+}
+
+.recommendation-card.cold {
+  background: linear-gradient(90deg, #00c6ff, #0072ff);
+}
+
+.recommendation-card.rain {
+  background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
+.recommendation-card.neutral {
+  background: linear-gradient(90deg, #f7f7f7, #e0e0e0);
+  color: #333;
+}
+
+/* Container for the weather recommendation text and line */
+.weather-recommendation-text {
+  font-weight: bold;
+  font-size: 1.1rem;
+  padding: 12px 16px;
+  margin: 0 0 8px 0; 
+  background: #f0f8ff;
+  border-radius: 12px;
+  display: inline-block;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Favorite toggle button */
+.favorite-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #ffffff;
+    color: #990000;
+    border: 2px solid #990000;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.favorite-btn.active {
+    background-color: #990000 !important;
+    color: white !important;
+}
+
+/* Favorite label under button */
+#favoriteLabelDisplay {
+    text-align: center;
+    font-size: 0.95em;
+    color: #333;
+    margin-bottom: 12px;
+}
+
+/* Popup for naming the favorite */
+#favoriteNamePopup {
+    display: none;
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    z-index: 3000;
+    background: white;
+    width: 90%;
+    max-width: 350px;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+#favoriteNameInput {
+    width: 90%;
+    padding: 8px;
+    font-size: 1.1em;
+    margin-top: 10px;
+    border-radius: 6px;
+    border: 1px solid #aaa;
+}
+
+#favoriteNameConfirm {
+    margin-top: 15px;
+    padding: 8px 15px;
+    font-size: 1.1em;
+    background-color: #990000;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+
+/* Smaller close buttons for Favorites & History modals */
+.small-close-btn {
+    font-size: 0.9rem !important;
+    padding: 6px 12px !important;
+    border-radius: 6px !important;
+}
+
+.small-close-btn:hover {
+    background-color: #d13a3a !important;  /* same hover red */
+    color: #ffffff !important;
+    transform: translateY(-1px);           /* lift upward */
+    transition: 0.15s ease-in-out;
+}
+
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px; /* optional spacing */
+}
+
+
+
+/* History / Favorites Modal Styling */
+#orderHistoryModal,
+#favoritesModal {
+background: white;
+padding: 20px;
+border-radius: 10px;
+width: 90%;
+max-width: 450px;
+max-height: 70vh;
+overflow-y: auto;
+}
+.history-entry {
+margin-bottom: 12px;
+}
+.reorder-btn {
+    background-color: #990000 !important;
+    color: #ffffff !important;
+    font-weight: bold !important;
+    border: none !important;
+    padding: 8px 14px !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    font-size: 1rem !important;
+}
+
+.reorder-btn:hover {
+    color: #ffffff !important;
+    transition: 0.15s ease-in-out;
+    background-color: #d13a3a !important;
+    transform: translateY(-1px);
+}
+

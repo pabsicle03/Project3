@@ -449,12 +449,6 @@ body.high-contrast img {
     }
 }
 
-<<<<<<< HEAD
-=======
-/* -------------------------
-   LARGE TEXT MODE
--------------------------- */
->>>>>>> origin/adriana-branch
 body.text-large {
     font-size: 1.3em;
 }
@@ -504,3 +498,24 @@ body.text-large .drink-price {
     font-weight: bold;
     color: #000;
 }
+
+
+/* Style + hover animation for "Save as Favorite" buttons in the cart */
+.favorite-save-btn {
+    background-color: #990000 !important;
+    color: #ffffff !important;
+    font-weight: bold !important;
+    border: none !important;
+    padding: 8px 14px !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    font-size: 1rem !important;
+    transition: 0.15s ease-in-out !important;
+}
+
+.favorite-save-btn:hover {
+    background-color: #d13a3a !important;
+    color: #ffffff !important;
+    transform: translateY(-1px) !important;
+}
+

@@ -84,25 +84,51 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ----- Render all cart items -----
   cart.forEach((item, index) => {
-    // Normalize for older cart data
+    // Normalize quantity from either `quantity` or `qty`
+    let q = 1;
+    if (typeof item.quantity === "number" && item.quantity > 0) {
+      q = item.quantity;
+    } else if (typeof item.qty === "number" && item.qty > 0) {
+      q = item.qty;
+    }
+
+    // Normalize unitPrice so it ALWAYS includes toppingsCost if present
     if (item.unitPrice == null) {
-      if (item.lineTotal != null && item.quantity) {
-        item.unitPrice = item.lineTotal / item.quantity;
-      } else if (item.basePrice != null) {
-        item.unitPrice = item.basePrice;
+      if (item.lineTotal != null) {
+        // If we have a lineTotal, derive unit price from it (keeps toppings)
+        item.unitPrice = item.lineTotal / q;
       } else {
-        item.unitPrice = 0;
+        const base = Number(item.basePrice || 0);
+        const toppings = Number(item.toppingsCost || 0);
+        item.unitPrice = base + toppings;
       }
     }
 
-    if (item.quantity == null || item.quantity < 1) {
-      item.quantity = item.qty && item.qty > 0 ? item.qty : 1;
-    }
-
+    // Ensure quantity and lineTotal are set
+    item.quantity = q;
     item.lineTotal = item.unitPrice * item.quantity;
 
     const itemDiv = document.createElement("div");
     itemDiv.classList.add("drink-item");
+
+    // Build options display string
+        let optionsText = `Size: ${item.size || "small"}, ` + `Ice Level: ${item.iceLevel || "regular"}, ` + `Sweetness: ${item.sweetness || "100%"}`;
+    // Add temperature if present
+    if (item.temperature) {
+      optionsText += `, Temperature: ${item.temperature}`;
+    }
+    
+    // Add tea type if present
+    if (item.teaType) {
+      optionsText += `, Tea: ${item.teaType}`;
+    }
+    
+    // Add toppings
+    optionsText += `, Toppings: ${
+      item.toppings && item.toppings.length
+        ? item.toppings.join(", ")
+        : "None"
+    }`;
 
     itemDiv.innerHTML = `
       <div class="drink-details">
@@ -110,13 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="drink-text">
           <div class="drink-name">${item.name}</div>
           <div class="drink-options">
-            Ice Level: ${item.iceLevel || "regular"},
-            Sweetness: ${item.sweetness || "100%"},
-            Toppings: ${
-              item.toppings && item.toppings.length
-                ? item.toppings.join(", ")
-                : "None"
-            }
+            ${optionsText}
           </div>
           <div class="quantity-row">
             Quantity:
@@ -128,12 +148,21 @@ document.addEventListener("DOMContentLoaded", () => {
               data-index="${index}"
             >
           </div>
+          <div class="favorite-row">
+            <button class="favorite-save-btn" data-index="${index}" style="margin-top:6px; padding:4px 8px; border-radius:6px; border:none; background:#d33; color:#fff; cursor:pointer; font-size:0.9em;">
+              Save as Favorite
+            </button>
+          </div>
         </div>
       </div>
       <div class="drink-price">$${item.lineTotal.toFixed(2)}</div>
     `;
 
     cartContainer.appendChild(itemDiv);
+    if (window.isGuestUser()) {
+      const favBtn = itemDiv.querySelector(".favorite-save-btn");
+      if (favBtn) favBtn.style.display = "none";
+    }
   });
 
   // Save normalized cart
@@ -196,9 +225,116 @@ document.addEventListener("DOMContentLoaded", () => {
       if (cart.length === 0) {
         cartContainer.innerHTML = "<p>Your cart is empty.</p>";
         totalPriceEl.textContent = "$0.00";
+        if (taxAmountEl) taxAmountEl.textContent = "$0.00";
       } else {
         window.location.reload(); // easiest re-render
       }
+    });
+  });
+
+
+  // ----- Save as Favorite (per line item) -----
+  cartContainer.querySelectorAll(".favorite-save-btn").forEach((btn) => {
+
+    btn.addEventListener("click", async () => {
+      const index = parseInt(btn.dataset.index, 10);
+      const item = cart[index];
+      if (!item) return;
+
+      const drinkConfig = {
+        name: item.name,
+        iceLevel: item.iceLevel,
+        sweetness: item.sweetness,
+        temperature: item.temperature,
+        teaType: item.teaType,
+        toppings: item.toppings || []
+      };
+
+      if (await window.isFavoriteAlready(drinkConfig)) {
+        alert("This drink is already in your favorites.");
+        return;
+      }
+
+      if (typeof window.saveFavorite !== "function") {
+        alert("Favorites are not available on this page.");
+        return;
+      }
+
+      // Try to use the custom favorite popup if it exists
+      const dim = document.getElementById("cartFavoriteDim");
+      const popup = document.getElementById("cartFavoritePopup");
+      const nameInputEl = document.getElementById("cartFavoriteNameInput");
+      const confirmBtn = document.getElementById("cartFavoriteConfirm");
+      const cancelBtn = document.getElementById("cartFavoriteCancel");
+
+      // If any are missing, fall back to prompt()
+      if (!dim || !popup || !nameInputEl || !confirmBtn || !cancelBtn) {
+        const defaultLabel = item.name || "Favorite Drink";
+        const nameInput = window.prompt(
+          "Optional: Give this favorite a name:",
+          defaultLabel
+        );
+
+        // If user pressed Cancel → do not save
+        if (nameInput === null) return;
+
+        const label =
+          nameInput && nameInput.trim() ? nameInput.trim() : defaultLabel;
+
+        const fallbackPayload = {
+          name: item.name,
+          basePrice: item.unitPrice ?? item.basePrice ?? 0,
+          iceLevel: item.iceLevel || "regular",
+          sweetness: item.sweetness || "100%",
+          temperature: item.temperature || "iced",
+          teaType: item.teaType || "black",
+          toppings: item.toppings || [],
+          toppingsCost: item.toppingsCost || 0,
+          label: label,
+        };
+
+        window.saveFavorite(fallbackPayload, "cart");
+        return;
+      }
+
+      // Use popup flow
+      const defaultLabel = item.name || "Favorite Drink";
+      nameInputEl.value = defaultLabel;
+
+      dim.style.display = "block";
+      popup.style.display = "block";
+
+      // Confirm handler (overwrite each time)
+      confirmBtn.onclick = () => {
+        const raw = nameInputEl.value;
+        const label = raw && raw.trim() ? raw.trim() : defaultLabel;
+
+        const payload = {
+          name: item.name,
+          basePrice: item.unitPrice ?? item.basePrice ?? 0,
+          iceLevel: item.iceLevel || "regular",
+          sweetness: item.sweetness || "100%",
+          temperature: item.temperature || "iced",
+          teaType: item.teaType || "black",
+          toppings: item.toppings || [],
+          toppingsCost: item.toppingsCost || 0,
+          favoriteLabel: label,
+        };
+
+        window.saveFavorite(payload, "cart");
+
+        // Close popup
+        popup.style.display = "none";
+        dim.style.display = "none";
+        nameInputEl.value = "";
+      };
+
+      // Cancel handler → close, do not save
+      cancelBtn.onclick = () => {
+        popup.style.display = "none";
+        dim.style.display = "none";
+        nameInputEl.value = "";
+      };
     });
   });
 
@@ -210,20 +346,18 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // 🔹 Determine payment method from button (data-method or text)
       let paymentMethod = (btn.dataset.method || btn.textContent || "").toLowerCase();
       if (paymentMethod.includes("cash")) {
         paymentMethod = "cash";
       } else if (paymentMethod.includes("card")) {
         paymentMethod = "card";
       } else {
-        // fallback: ask
         paymentMethod = window.confirm("Are you paying with cash? Click Cancel for card.")
           ? "cash"
           : "card";
       }
 
-      // 🔹 Get customer name
+      //Get customer name
       let customerName = localStorage.getItem("customerName");
 
       // If no stored name (guest / google), ask for it
@@ -238,7 +372,45 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("customerName", customerName);
       }
 
-      // 🔹 On customer side, employee is the kiosk
+      //Receipt flow
+      const storedEmail = localStorage.getItem("customerEmail") || null;
+      let wantReceipt = window.confirm("Would you like your receipt emailed to you?");
+      let receiptEmail = null;
+      let receiptName = customerName;
+
+      if (wantReceipt) {
+        if (storedEmail) {
+          // logged-in customer with known email
+          receiptEmail = storedEmail;
+        } else {
+          // guest or no email saved → ask for name + email
+          let nameInput = customerName;
+          if (!nameInput) {
+            nameInput = window.prompt("Please enter your name for the receipt:");
+            if (!nameInput || !nameInput.trim()) {
+              alert("Name is required for the receipt.");
+              wantReceipt = false;
+            } else {
+              nameInput = nameInput.trim();
+              customerName = nameInput;
+              receiptName = nameInput;
+              localStorage.setItem("customerName", nameInput);
+            }
+          }
+
+          if (wantReceipt) {
+            const emailInput = window.prompt("Please enter your email for the receipt:");
+            if (!emailInput || !emailInput.trim()) {
+              alert("No email entered. We will not send a receipt.");
+              wantReceipt = false;
+            } else {
+              receiptEmail = emailInput.trim();
+            }
+          }
+        }
+      }
+
+      //On customer side, employee is the kiosk
       const employeeName = "Kiosk";
 
       try {
@@ -250,6 +422,9 @@ document.addEventListener("DOMContentLoaded", () => {
             employee_name: employeeName,
             customer_name: customerName,
             payment_method: paymentMethod,
+            want_receipt: wantReceipt,
+            receipt_email: receiptEmail,
+            receipt_name: receiptName
           }),
         });
 
@@ -275,8 +450,8 @@ document.addEventListener("DOMContentLoaded", () => {
         cartContainer.innerHTML = "<p>Your cart is empty.</p>";
         totalPriceEl.textContent = "$0.00";
 
-        const taxAmountEl = document.querySelector(".tax-amount");
-        if (taxAmountEl) taxAmountEl.textContent = "$0.00";
+        const taxAmountEl2 = document.querySelector(".tax-amount");
+        if (taxAmountEl2) taxAmountEl2.textContent = "$0.00";
       }
     });
   }
@@ -285,7 +460,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const backBtn = document.getElementById("backButton");
   if (backBtn) {
     backBtn.addEventListener("click", () => {
-      // cart.html lives in /customer/, so go back to that folder’s menu
+      // cart.html lives in /customer/, so go back to that folder's menu
       window.location.href = "/customer/customerallmenu.html";
     });
   }

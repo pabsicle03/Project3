@@ -21,10 +21,10 @@
     </script>
     <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
-
     <script src="../custscript.js" defer></script>
     <script src="../menu.js" defer></script>
     <script src="../weather.js" defer></script>
+
 </head>
 <body>
     <div id="google_translate_element"></div>
@@ -44,10 +44,54 @@
                 </div>
             </div>
 
+            <!-- Top-bar actions: Previous Orders + Favorites (MOVED OUTSIDE DROPDOWN) -->
+            <button id="viewHistoryBtn" class="accessibility-btn">Previous Orders</button>
+            <button id="viewFavoritesBtn" class="accessibility-btn">Favorites</button>
+
             <div class="cart-icon">
                 <i class="fa-solid fa-cart-shopping"></i>
                 <span id="cartCount" class="cart-badge"></span>
             </div>
+        </div>
+
+        <!-- History Modal + Dim -->
+        <div id="historyDim" 
+            style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:2000;">
+        </div>
+
+        <div id="orderHistoryModal" class="customization-popup"
+            style="display:none; position:fixed; inset:0; margin:auto; z-index:2001;">
+
+            <div class="popup-top-row">
+                <div class="modal-header">
+                  <h2>Your Previous Orders</h2>
+                  <button id="closeHistoryModal" class="confirm-button small-close-btn" style="margin-top:10px;">Close</button>
+                </div>
+            </div>
+
+            <div id="historyList"></div>
+        </div>
+
+        <!-- Favorites Modal + Dim -->
+        <div id="favoritesDim" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:2100;"></div>
+
+        <div id="favoritesModal" class="customization-popup" style="display:none; position:fixed; inset:0; margin:auto; z-index:2101;">
+            <div class="modal-header">
+                <h2>Your Favorites</h2>
+                <button id="closeFavoritesModal" class="confirm-button small-close-btn" style="margin-top:10px;">Close</button>
+            </div>
+            <div id="favoritesList"></div>
+        </div>
+
+        <!-- Favorite Naming Popup -->
+        <div id="favoriteNameDim" 
+            style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:2999;">
+        </div>
+
+        <div id="favoriteNamePopup">
+            <h3>Name This Favorite</h3>
+            <input id="favoriteNameInput" placeholder="e.g. Morning Matcha">
+            <button id="favoriteNameConfirm">Save</button>
         </div>
 
         <div class="main-content-area">
@@ -63,13 +107,14 @@
                 </div>
 
                 <!-- Navigation buttons -->
-                <button class="nav-button active" data-series="ALL">All</button>
-                <button class="nav-button"><a href="custnoncaf.html">Non-Caffienated</a></button>
-                <button class="nav-button"><a href="custiceblend.html">Ice-Blended</a></button>
-                <button class="nav-button"><a href="custmatcha.html">Matcha</a></button>
-                <button class="nav-button"><a href="custfruity.html">Fruity</a></button>
-                <button class="nav-button"><a href="custfreshbrew.html">Fresh Brew</a></button>
-                <button class="nav-button"><a href="custmilky.html">Milky</a></button>
+                <button class="nav-button active" data-category="all">All</button>
+                <button class="nav-button" data-category="noncaf">Non-Caffeinated</button>
+                <button class="nav-button" data-category="iceblend">Ice-Blended</button>
+                <button class="nav-button" data-category="matcha">Matcha</button>
+                <button class="nav-button" data-category="fruity">Fruity</button>
+                <button class="nav-button" data-category="freshbrew">Fresh Brew</button>
+                <button class="nav-button" data-category="milky">Milky</button>
+                <button class="nav-button" data-category="recommendation">Recommendation</button>
             </div>
 
             <main id="menuRoot"></main> 

@@ -8,8 +8,13 @@ export let cart = [];
  *   qty,
  *   iceLevel,
  *   sweetness,
+ *   temperature,
+ *   teaType,
  *   toppings (array),
- *   toppingsCost
+ *   toppingsCost,
+ *   hot_option,
+ *   tea_options,
+ *   size
  * }
  */
 
@@ -159,8 +164,13 @@ function addToCart(drink) {
     qty: drink.qty ?? 1,
     iceLevel: drink.iceLevel ?? "Regular",
     sweetness: drink.sweetness ?? "Regular",
+    temperature: drink.temperature ?? "iced",
+    teaType: drink.teaType ?? null,
     toppings: drink.toppings ?? [],
     toppingsCost: drink.toppingsCost ?? 0,
+    hot_option: drink.hot_option ?? false,
+    tea_options: drink.tea_options ?? false,
+    size: drink.size ?? "small",
   });
 
   saveCart();
@@ -241,10 +251,29 @@ function refreshCartUI() {
     const lineTotal = (it.basePrice + (it.toppingsCost || 0)) * it.qty;
     total += lineTotal;
 
+    const size = it.size ?? "small";
     const ice = it.iceLevel ?? "Regular";
     const sweet = it.sweetness ?? "Regular";
+    const temp = it.temperature ?? "iced";
+    const tea = it.teaType ?? null;
     const toppingsText =
       it.toppings?.length ? it.toppings.join(", ") : "No toppings";
+
+    let customizationHTML = `
+      Size: ${escapeHtml(size)}<br>
+      Ice: ${escapeHtml(ice)}<br>
+      Sweetness: ${escapeHtml(sweet)}<br>
+    `;
+
+    if (temp) {
+      customizationHTML += `Temperature: ${escapeHtml(temp)}<br>`;
+    }
+
+    if (tea) {
+      customizationHTML += `Tea: ${escapeHtml(tea)}<br>`;
+    }
+
+    customizationHTML += `Toppings: ${escapeHtml(toppingsText)}`;
 
     li.innerHTML = `
       <div class="cart-item-left">
@@ -258,9 +287,7 @@ function refreshCartUI() {
           </div>
 
           <div class="cart-customization">
-            Ice: ${escapeHtml(ice)}<br>
-            Sweetness: ${escapeHtml(sweet)}<br>
-            Toppings: ${escapeHtml(toppingsText)}
+            ${customizationHTML}
           </div>
         </div>
       </div>
@@ -334,9 +361,14 @@ async function submitCart() {
     name: it.name,
     iceLevel: it.iceLevel,
     sweetness: it.sweetness,
+    temperature: it.temperature ?? "iced",
+    teaType: it.teaType ?? null,
     toppings: it.toppings,
     basePrice: it.basePrice,
     toppingsCost: it.toppingsCost || 0,
+    hot_option: it.hot_option ?? false,
+    tea_options: it.tea_options ?? false,
+    // size not sent to backend (DB schema doesn't have it)
   }));
 
   const employeeName = await getEmployeeName();
@@ -390,6 +422,8 @@ export async function loadDrinks(series) {
     card.className = "drink-card";
 
     const basePrice = Number(d.price ?? 0);
+    const hotOption = d.hotOption === true;
+    const teaOptions = d.teaOptions === true;
 
     card.innerHTML = `
       <div class="drink-inner">
@@ -410,9 +444,11 @@ export async function loadDrinks(series) {
           id: buildDrinkId(d.name),
           name: d.name,
           basePrice,
+          hot_option: hotOption,
+          tea_options: teaOptions,
         });
       } else {
-        addToCart({ name: d.name, price: basePrice });
+        addToCart({ name: d.name, price: basePrice, hot_option: hotOption, tea_options: teaOptions });
       }
     });
 
@@ -430,10 +466,11 @@ export async function loadDrinks(series) {
       modal.id = "customizeModal";
       modal.className = "customization-popup";
       modal.style.cssText =
-        "display:none;position:fixed;inset:0;margin:auto;z-index:1000;";
+        "display:none;position:fixed;inset:0;margin:auto;z-index:1000;max-height:80vh;overflow-y:auto;";
 
       modal.innerHTML = `
-        <div class="customization-section">
+        <!-- ICE SECTION -->
+        <div class="customization-section" id="cashier-iceSection">
           <h2 class="section-title">Ice Level:</h2>
           <div class="options-group" role="radiogroup">
             <input type="radio" id="ice-regular" name="ice-level" value="Regular" checked>
@@ -445,6 +482,7 @@ export async function loadDrinks(series) {
           </div>
         </div>
 
+        <!-- SWEETNESS SECTION -->
         <div class="customization-section">
           <h2 class="section-title">Sweetness Level:</h2>
           <div class="options-group" role="radiogroup">
@@ -461,6 +499,46 @@ export async function loadDrinks(series) {
           </div>
         </div>
 
+        <!-- TEMPERATURE SECTION -->
+        <div class="customization-section" id="cashier-tempSection">
+          <h2 class="section-title">Temperature:</h2>
+          <div class="options-group" role="radiogroup">
+            <input type="radio" id="temp-iced" name="temperature" value="iced" checked>
+            <label for="temp-iced">Iced</label>
+            <div id="cashier-hotOption" style="display:inline-block;">
+              <input type="radio" id="temp-hot" name="temperature" value="hot">
+              <label for="temp-hot">Hot</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- SIZE SECTION -->
+        <div class="customization-section" id="cashier-sizeSection">
+          <h2 class="section-title">Size:</h2>
+          <div class="options-group" role="radiogroup">
+            <input type="radio" id="size-small" name="drink-size" value="small" checked>
+            <label for="size-small">Small</label>
+            <input type="radio" id="size-medium" name="drink-size" value="medium">
+            <label for="size-medium">Medium (+$0.20)</label>
+            <input type="radio" id="size-large" name="drink-size" value="large">
+            <label for="size-large">Large (+$0.40)</label>
+          </div>
+        </div>
+
+        <!-- TEA TYPE SECTION -->
+        <div class="customization-section" id="cashier-teaSection">
+          <h2 class="section-title">Tea Type:</h2>
+          <div class="options-group" role="radiogroup">
+            <input type="radio" id="tea-black" name="tea-type" value="black" checked>
+            <label for="tea-black">Black Tea</label>
+            <input type="radio" id="tea-green" name="tea-type" value="green">
+            <label for="tea-green">Green Tea</label>
+            <input type="radio" id="tea-oolong" name="tea-type" value="oolong">
+            <label for="tea-oolong">Oolong Tea</label>
+          </div>
+        </div>
+
+        <!-- TOPPINGS -->
         <div class="customization-section">
           <h2 class="section-title">Toppings:</h2>
           <div class="options-group toppings-grid">
@@ -502,8 +580,15 @@ export async function loadDrinks(series) {
     function resetPopupSelections() {
       const iceRegular = document.getElementById("ice-regular");
       const sweetNormal = document.getElementById("sweet-normal");
+      const tempIced = document.getElementById("temp-iced");
+      const teaBlack = document.getElementById("tea-black");
+      const sizeSmall = document.getElementById("size-small");
+
       if (iceRegular) iceRegular.checked = true;
       if (sweetNormal) sweetNormal.checked = true;
+      if (tempIced) tempIced.checked = true;
+      if (teaBlack) teaBlack.checked = true;
+      if (sizeSmall) sizeSmall.checked = true;
 
       document
         .querySelectorAll('input[type="checkbox"][id^="topping-"]')
@@ -541,6 +626,37 @@ export async function loadDrinks(series) {
         if (radio) radio.checked = true;
       }
 
+      // Temperature
+      if (item.temperature) {
+        const id = item.temperature === "hot" ? "temp-hot" : "temp-iced";
+        const radio = document.getElementById(id);
+        if (radio) radio.checked = true;
+      }
+
+      // Tea Type
+      if (item.teaType) {
+        const id =
+          item.teaType === "green"
+            ? "tea-green"
+            : item.teaType === "oolong"
+            ? "tea-oolong"
+            : "tea-black";
+        const radio = document.getElementById(id);
+        if (radio) radio.checked = true;
+      }
+
+      // Size
+      if (item.size) {
+        const sizeId =
+          item.size === "medium"
+            ? "size-medium"
+            : item.size === "large"
+            ? "size-large"
+            : "size-small";
+        const radio = document.getElementById(sizeId);
+        if (radio) radio.checked = true;
+      }
+
       // Toppings
       if (Array.isArray(item.toppings)) {
         document
@@ -558,6 +674,47 @@ export async function loadDrinks(series) {
 
       resetPopupSelections();
 
+      // Show/hide sections based on drink capabilities
+      const hotAllowed = drink.hot_option === true;
+      const teaAllowed = drink.tea_options === true;
+
+      const tempSection = document.getElementById("cashier-tempSection");
+      const teaSection = document.getElementById("cashier-teaSection");
+      const hotOption = document.getElementById("cashier-hotOption");
+
+      if (!hotAllowed && hotOption) {
+        hotOption.style.display = "none";
+      } else if (hotOption) {
+        hotOption.style.display = "inline-block";
+      }
+
+      if (!teaAllowed && teaSection) {
+        teaSection.style.display = "none";
+      } else if (teaSection) {
+        teaSection.style.display = "";
+      }
+
+      // Hide ice if hot selected
+      const tempRadios = document.querySelectorAll('input[name="temperature"]');
+      const iceSection = document.getElementById("cashier-iceSection");
+
+      tempRadios.forEach((radio) => {
+        const newRadio = radio.cloneNode(true);
+        radio.parentNode.replaceChild(newRadio, radio);
+      });
+
+      document
+        .querySelectorAll('input[name="temperature"]')
+        .forEach((radio) => {
+          radio.addEventListener("change", () => {
+            if (document.getElementById("temp-hot")?.checked) {
+              iceSection.style.display = "none";
+            } else {
+              iceSection.style.display = "";
+            }
+          });
+        });
+
       modal.style.display = "block";
       dim.style.display = "block";
     };
@@ -568,10 +725,53 @@ export async function loadDrinks(series) {
       activeDrink = {
         name: cartItem.name,
         basePrice: cartItem.basePrice,
+        hot_option: cartItem.hot_option,
+        tea_options: cartItem.tea_options,
       };
 
       resetPopupSelections();
       applyCartItemToPopup(cartItem);
+
+      // Show/hide sections
+      const hotAllowed = cartItem.hot_option === true;
+      const teaAllowed = cartItem.tea_options === true;
+
+      const tempSection = document.getElementById("cashier-tempSection");
+      const teaSection = document.getElementById("cashier-teaSection");
+      const hotOption = document.getElementById("cashier-hotOption");
+
+      if (!hotAllowed && hotOption) {
+        hotOption.style.display = "none";
+      } else if (hotOption) {
+        hotOption.style.display = "inline-block";
+      }
+
+      if (!teaAllowed && teaSection) {
+        teaSection.style.display = "none";
+      } else if (teaSection) {
+        teaSection.style.display = "";
+      }
+
+      // Hide ice if hot selected
+      const tempRadios = document.querySelectorAll('input[name="temperature"]');
+      const iceSection = document.getElementById("cashier-iceSection");
+
+      tempRadios.forEach((radio) => {
+        const newRadio = radio.cloneNode(true);
+        radio.parentNode.replaceChild(newRadio, radio);
+      });
+
+      document
+        .querySelectorAll('input[name="temperature"]')
+        .forEach((radio) => {
+          radio.addEventListener("change", () => {
+            if (document.getElementById("temp-hot")?.checked) {
+              iceSection.style.display = "none";
+            } else {
+              iceSection.style.display = "";
+            }
+          });
+        });
 
       modal.style.display = "block";
       dim.style.display = "block";
@@ -595,10 +795,27 @@ export async function loadDrinks(series) {
     document.getElementById("confirmCustomize").onclick = () => {
       if (!activeDrink) return;
 
-      const ice = document.querySelector('input[name="ice-level"]:checked')
-        ?.value;
-      const sweet = document.querySelector('input[name="sweet-level"]:checked')
-        ?.value;
+      const temperature =
+        document.querySelector('input[name="temperature"]:checked')?.value ||
+        "iced";
+
+      let ice = "Regular";
+      if (temperature !== "hot") {
+        ice =
+          document.querySelector('input[name="ice-level"]:checked')?.value ||
+          "Regular";
+      }
+
+      const sweet =
+        document.querySelector('input[name="sweet-level"]:checked')?.value ||
+        "100%";
+
+      let teaType = null;
+      if (activeDrink.tea_options === true) {
+        teaType =
+          document.querySelector('input[name="tea-type"]:checked')?.value ||
+          "black";
+      }
 
       const toppings = Array.from(
         document.querySelectorAll(
@@ -608,9 +825,22 @@ export async function loadDrinks(series) {
 
       const toppingsCost = toppings.length * TOPPING_PRICE;
 
+      // 🔹 SIZE LOGIC
+      const sizeRadio = document.querySelector('input[name="drink-size"]:checked');
+      const size = sizeRadio ? sizeRadio.value : "small";
+
+      let sizeUpcharge = 0;
+      if (size === "medium") sizeUpcharge = 0.20;
+      else if (size === "large") sizeUpcharge = 0.40;
+
+      const finalBasePrice = (activeDrink.basePrice ?? 0) + sizeUpcharge;
+
       if (activeMode === "edit" && activeCartItem) {
+        // For edit mode we keep the existing basePrice/size (you can change that if you want)
         activeCartItem.iceLevel = ice;
         activeCartItem.sweetness = sweet;
+        activeCartItem.temperature = temperature;
+        activeCartItem.teaType = teaType;
         activeCartItem.toppings = toppings;
         activeCartItem.toppingsCost = toppingsCost;
         saveCart();
@@ -618,12 +848,17 @@ export async function loadDrinks(series) {
       } else {
         addToCart({
           name: activeDrink.name,
-          basePrice: activeDrink.basePrice,
+          basePrice: finalBasePrice,
           iceLevel: ice,
           sweetness: sweet,
+          temperature: temperature,
+          teaType: teaType,
           toppings,
           toppingsCost,
           qty: 1,
+          hot_option: activeDrink.hot_option,
+          tea_options: activeDrink.tea_options,
+          size,
         });
       }
 

@@ -20,8 +20,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     `;
 
     weatherContainer.innerHTML = html;
+    // expose weather globally (temp + conditions)
+    window.weatherData = data;
+
   } catch (err) {
     console.error("Weather fetch error:", err);
     weatherContainer.innerHTML = "<p>Unable to load weather data.</p>";
+
+    window.weatherData = null; // still define it
   }
 });

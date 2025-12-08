@@ -250,3 +250,67 @@ body.high-contrast #message-box {
     color: black;
     border: 2px solid yellow;
 }
+
+
+/* Favorite toggle button */
+.favorite-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #ffffff;
+    color: #990000;
+    border: 2px solid #990000;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.favorite-btn.active {
+    background-color: #990000 !important;
+    color: white !important;
+}
+
+/* Favorite label under button */
+#favoriteLabelDisplay {
+    text-align: center;
+    font-size: 0.95em;
+    color: #333;
+    margin-bottom: 12px;
+}
+
+/* Popup for naming the favorite */
+#favoriteNamePopup {
+    display: none;
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    z-index: 3000;
+    background: white;
+    width: 90%;
+    max-width: 350px;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+#favoriteNameInput {
+    width: 90%;
+    padding: 8px;
+    font-size: 1.1em;
+    margin-top: 10px;
+    border-radius: 6px;
+    border: 1px solid #aaa;
+}
+
+#favoriteNameConfirm {
+    margin-top: 15px;
+    padding: 8px 15px;
+    font-size: 1.1em;
+    background-color: #990000;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}

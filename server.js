@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import pkg from "pg";
 import dotenv from "dotenv";
 import fetch from "node-fetch";
+import nodemailer from "nodemailer";
 
 dotenv.config();
 const { Pool } = pkg;
@@ -24,14 +25,101 @@ app.use("/Images", express.static(path.join(__dirname, "public", "Images")));
 
 app.use(express.json());
 
-// Database setup
+// ---------------------- DATABASE SETUP ----------------------
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  host: process.env.PGHOST,
+  port: Number(process.env.PGPORT || 5432),
+  user: process.env.PGUSER,
+  password: process.env.PGPASSWORD,
+  database: process.env.PGDATABASE,
   ssl:
-    process.env.NODE_ENV === "production"
+    process.env.PGSSL === "true"
       ? { rejectUnauthorized: false }
       : false,
 });
+
+// ---------------------- EMAIL (NODEMAILER) ----------------------
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT || 587),
+  secure: false,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
+
+// quantity-aware receipt
+async function sendReceiptEmail(to, name, paymentMethod, orders) {
+  if (!to) return;
+
+  const lines = orders.map((o, idx) => {
+    const qty =
+      o.quantity != null
+        ? o.quantity
+        : o.qty != null
+        ? o.qty
+        : 1;
+
+    const toppings =
+      Array.isArray(o.toppings) && o.toppings.length
+        ? ` (Toppings: ${o.toppings.join(", ")})`
+        : "";
+
+    const unitPrice = (o.basePrice || 0) + (o.toppingsCost || 0);
+    const lineTotal =
+      o.lineTotal != null ? o.lineTotal : unitPrice * qty;
+
+    return `${idx + 1}. ${o.name} x${qty}${toppings} - $${lineTotal.toFixed(
+      2
+    )}`;
+  });
+
+  const subtotal = orders.reduce((sum, o) => {
+    const qty =
+      o.quantity != null
+        ? o.quantity
+        : o.qty != null
+        ? o.qty
+        : 1;
+
+    const unitPrice = (o.basePrice || 0) + (o.toppingsCost || 0);
+    const lineTotal =
+      o.lineTotal != null ? o.lineTotal : unitPrice * qty;
+
+    return sum + lineTotal;
+  }, 0);
+
+  const TAX_RATE = 0.0825;
+  const tax = subtotal * TAX_RATE;
+  const total = subtotal + tax;
+
+  const textBody = [
+    `Hi ${name || "Customer"},`,
+    "",
+    "Thank you for your order from Sharetea!",
+    "",
+    "Order details:",
+    ...lines,
+    "",
+    `Payment method: ${paymentMethod || "N/A"}`,
+    "",
+    `Subtotal: $${subtotal.toFixed(2)}`,
+    `Tax: $${tax.toFixed(2)}`,
+    `Total: $${total.toFixed(2)}`,
+    "",
+    "Have a great day!",
+  ].join("\n");
+
+  await transporter.sendMail({
+    from:
+      process.env.EMAIL_FROM ||
+      `"Sharetea Kiosk" <${process.env.SMTP_USER}>`,
+    to,
+    subject: "Your Sharetea order receipt",
+    text: textBody,
+  });
+}
 
 // ---------------------- HEALTH CHECK ----------------------
 app.get("/healthz", (req, res) =>
@@ -42,7 +130,7 @@ app.get("/healthz", (req, res) =>
 app.get("/api/menu", async (req, res) => {
   try {
     const sql = `
-      SELECT drink_name, series_name, qty_remaining, drink_price, file_name
+      SELECT drink_name, series_name, qty_remaining, drink_price, file_name, hot_option, tea_options
       FROM drinks
       ORDER BY series_name, drink_name;
     `;
@@ -65,7 +153,7 @@ app.get("/api/drinks", async (req, res) => {
   const { series } = req.query;
   try {
     const params = [];
-    let q = `SELECT drink_name, series_name, drink_price, file_name FROM drinks`;
+    let q = `SELECT drink_name, series_name, drink_price, file_name, hot_option, tea_options FROM drinks`;
     if (series) {
       q += ` WHERE series_name = $1`;
       params.push(series);
@@ -81,6 +169,8 @@ app.get("/api/drinks", async (req, res) => {
       imageUrl: r.file_name
         ? `/Images/${r.file_name}`
         : `/Images/placeholder.png`,
+      hotOption: r.hot_option,
+      teaOptions: r.tea_options
     }));
 
     res.json({ drinks: data });
@@ -111,7 +201,15 @@ app.get("/api/employee/:id", async (req, res) => {
 
 // ---------------------- ORDERS (CASHIER + CUSTOMER) ----------------------
 async function handleOrdersPost(req, res) {
-  const { orders, employee_name, customer_name, payment_method } = req.body;
+  const {
+    orders,
+    employee_name,
+    customer_name,
+    payment_method,
+    want_receipt,
+    receipt_email,
+    receipt_name,
+  } = req.body;
 
   if (!Array.isArray(orders) || orders.length === 0) {
     return res.status(400).json({ error: "No orders provided" });
@@ -121,13 +219,15 @@ async function handleOrdersPost(req, res) {
     for (const o of orders) {
       await pool.query(
         `INSERT INTO orders 
-          (drink_name, ice_level, sweetness_level, topping_used, 
+          (drink_name, ice_level, sweetness_level, temperature, tea_type, topping_used, 
            drink_price, topping_price, employee_name, customer_name, payment_method, order_timestamp)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())`,
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW())`,
         [
           o.name,
           o.iceLevel,
           o.sweetness,
+          o.temperature || 'iced',
+          o.teaType || null,
           Array.isArray(o.toppings) ? o.toppings.join(", ") : "",
           o.basePrice,
           o.toppingsCost,
@@ -136,6 +236,20 @@ async function handleOrdersPost(req, res) {
           payment_method || null,
         ]
       );
+    }
+
+    // Try sending receipt email if requested
+    if (want_receipt && receipt_email) {
+      try {
+        await sendReceiptEmail(
+          receipt_email,
+          receipt_name || customer_name,
+          payment_method,
+          orders
+        );
+      } catch (emailErr) {
+        console.error("Failed to send receipt email:", emailErr);
+      }
     }
 
     res.status(200).json({ ok: true, message: "Orders inserted successfully" });
@@ -147,6 +261,129 @@ async function handleOrdersPost(req, res) {
 
 app.post("/api/orders", handleOrdersPost);
 app.post("/orders", handleOrdersPost); // alias for older front-end code
+
+// ---------------------- CUSTOMER FAVORITES ----------------------
+app.post("/api/favorites", async (req, res) => {
+  const {
+    customer_name,
+    drink_name,
+    ice_level,
+    sweetness_level,
+    temperature,
+    tea_type,
+    topping_used,
+    drink_price,
+    topping_price,
+    label
+  } = req.body;
+
+  try {
+    // Prevent duplicates - now including temperature and tea_type
+    const dup = await pool.query(
+      `SELECT id FROM favorites
+       WHERE customer_name = $1
+       AND drink_name = $2
+       AND ice_level = $3
+       AND sweetness_level = $4
+       AND temperature = $5
+       AND COALESCE(tea_type, '') = COALESCE($6, '')
+       AND topping_used = $7`,
+      [customer_name, drink_name, ice_level, sweetness_level, temperature || 'iced', tea_type || '', topping_used]
+    );
+
+    if (dup.rows.length > 0) {
+      return res.json({
+        ok: false,
+        error: "DUPLICATE"
+      });
+    }
+
+    await pool.query(
+      `INSERT INTO favorites
+       (customer_name, drink_name, ice_level, sweetness_level, temperature, tea_type, topping_used, drink_price, topping_price, label)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+      [
+        customer_name,
+        drink_name,
+        ice_level,
+        sweetness_level,
+        temperature || 'iced',
+        tea_type || null,
+        topping_used,
+        drink_price,
+        topping_price,
+        label
+      ]
+    );
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ ok: false, error: "DB error" });
+  }
+});
+
+app.get("/api/favorites/:customerName", async (req, res) => {
+  const customerName = req.params.customerName;
+
+  try {
+    const result = await pool.query(
+      `SELECT id, customer_name, drink_name, ice_level, sweetness_level, temperature, tea_type,
+              topping_used, drink_price, topping_price, created_at, label
+       FROM favorites
+       WHERE customer_name = $1
+       ORDER BY created_at DESC
+       LIMIT 50`,
+      [customerName]
+    );
+
+    res.json({ ok: true, favorites: result.rows });
+  } catch (err) {
+    console.error("Error fetching favorites", err);
+    res
+      .status(500)
+      .json({ ok: false, error: "Database error fetching favorites" });
+  }
+});
+
+app.delete("/api/favorites/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) {
+    return res.status(400).json({ ok: false, error: "Invalid id" });
+  }
+
+  try {
+    await pool.query("DELETE FROM favorites WHERE id = $1", [id]);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("Error deleting favorite", err);
+    res
+      .status(500)
+      .json({ ok: false, error: "Database error deleting favorite" });
+  }
+});
+
+// ---------------------- ORDER HISTORY ----------------------
+app.get("/api/history/:customerName", async (req, res) => {
+  const { customerName } = req.params;
+
+  try {
+    const { rows } = await pool.query(
+      `SELECT order_id, drink_name, ice_level, sweetness_level, temperature, tea_type, topping_used, 
+              drink_price, topping_price, payment_method, order_timestamp
+       FROM orders
+       WHERE customer_name = $1
+       ORDER BY order_timestamp DESC
+       LIMIT 50`,
+      [customerName]
+    );
+
+    res.json({ ok: true, history: rows });
+  } catch (err) {
+    console.error("/api/history error:", err.message);
+    res.status(500).json({ ok: false, error: "Database error" });
+  }
+});
 
 // ---------------------- BASIC PAGES ----------------------
 
@@ -229,12 +466,14 @@ app.post("/api/register", async (req, res) => {
     const insert = await pool.query(
       `INSERT INTO customers (customer_user, customer_pass, customer_name, customer_email)
        VALUES ($1, $2, $3, $4)
-       RETURNING customer_id`,
+       RETURNING customer_id, customer_email`,
       [username, password, name, email]
     );
 
     const newId = insert.rows[0].customer_id;
-    res.json({ ok: true, customerId: newId });
+    const newEmail = insert.rows[0].customer_email;
+
+    res.json({ ok: true, customerId: newId, customerEmail: newEmail });
   } catch (err) {
     console.error("Register error:", err);
     res.status(500).json({ ok: false, error: "Server error during register" });
@@ -284,7 +523,7 @@ app.post("/api/login", async (req, res) => {
 
     // 3️⃣ CUSTOMER LOGIN
     const cust = await pool.query(
-      "SELECT customer_id, customer_pass, customer_name FROM customers WHERE customer_user = $1",
+      "SELECT customer_id, customer_pass, customer_name, customer_email FROM customers WHERE customer_user = $1",
       [id]
     );
 
@@ -295,6 +534,7 @@ app.post("/api/login", async (req, res) => {
           role: "customer",
           customerId: cust.rows[0].customer_id,
           customerName: cust.rows[0].customer_name,
+          customerEmail: cust.rows[0].customer_email,
         });
       } else {
         return res.json({ ok: false, message: "Invalid password" });
@@ -557,27 +797,35 @@ app.delete("/api/manager/employees/:id", async (req, res) => {
 
 // ---------------------- PRODUCT USAGE (MANAGER) ----------------------
 app.get("/api/productusage", async (req, res) => {
-  const { start, end } = req.query;
+    const { start, end } = req.query;
 
-  if (!start || !end) {
-    return res.status(400).json({ error: "Start and end dates required" });
-  }
+    if (!start || !end) {
+        return res.status(400).json({ error: "Start and end dates required" });
+    }
 
-  try {
-    const query = `
-      SELECT drink_name AS product_name, COUNT(*) AS quantity_used
-      FROM orders
-      WHERE order_timestamp::date BETWEEN $1 AND $2
-      GROUP BY drink_name
-      ORDER BY quantity_used DESC;
-    `;
-    const result = await pool.query(query, [start, end]);
-    res.json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Database query failed" });
-  }
+    try {
+        const sql = `
+            SELECT 
+                mi.ingredient_name AS ingredient,
+                COUNT(*) AS times_used
+            FROM orders o
+            JOIN menu_item_ingredients mi
+                ON mi.menu_item_name = o.drink_name
+            WHERE o.order_timestamp::date BETWEEN $1 AND $2
+            GROUP BY mi.ingredient_name
+            ORDER BY times_used DESC;
+        `;
+        
+        const result = await pool.query(sql, [start, end]);
+
+        res.json(result.rows);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Database query failed" });
+    }
 });
+
 
 // ---------------------- X-REPORT (MANAGER) ----------------------
 app.get("/api/xreport", async (req, res) => {

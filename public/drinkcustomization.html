@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Drink Customization</title>
-    <link rel="stylesheet" href="drinkcustomstyle.css"> 
+    <link rel="stylesheet" href="drinkcustomstyle.css">
     <script src="custscript.js" defer></script>
 </head>
 <body>
+
     <!-- High contrast toggle button -->
     <div style="text-align: right; margin: 10px;">
         <button id="contrastToggle">Toggle High Contrast</button>
@@ -16,9 +17,10 @@
     <div class="customization-popup">
         <div class="popup-header"></div>
 
-        <div class="customization-section">
+        <!-- ICE SECTION -->
+        <div class="customization-section" id="iceSection">
             <h2 class="section-title">Ice Level:</h2>
-            <div class="options-group" role="radiogroup" aria-labelledby="ice-level-title">
+            <div class="options-group">
                 <input type="radio" id="ice-regular" name="ice-level" value="regular" checked>
                 <label for="ice-regular">Regular</label>
 
@@ -30,31 +32,78 @@
             </div>
         </div>
 
+        <!-- SWEETNESS SECTION -->
         <div class="customization-section">
-            <h2 class="section-title" id="sweetness-level-title">Sweetness Level:</h2>
-            <div class="options-group" role="radiogroup" aria-labelledby="sweetness-level-title">
+            <h2 class="section-title">Sweetness Level:</h2>
+            <div class="options-group">
                 <input type="radio" id="sweet-normal" name="sweet-level" value="100%" checked>
-                <label for="sweet-normal">Normal <span>100%</span></label>
+                <label for="sweet-normal">Normal 100%</label>
 
                 <input type="radio" id="sweet-less" name="sweet-level" value="80%">
-                <label for="sweet-less">Less <span>80%</span></label>
+                <label for="sweet-less">Less 80%</label>
 
                 <input type="radio" id="sweet-half" name="sweet-level" value="50%">
-                <label for="sweet-half">Half <span>50%</span></label>
+                <label for="sweet-half">Half 50%</label>
 
                 <input type="radio" id="sweet-light" name="sweet-level" value="30%">
-                <label for="sweet-light">Light <span>30%</span></label>
+                <label for="sweet-light">Light 30%</label>
 
                 <input type="radio" id="sweet-none" name="sweet-level" value="0%">
-                <label for="sweet-none">No Sugar <span>0%</span></label>
+                <label for="sweet-none">No Sugar</label>
             </div>
         </div>
 
+        <!-- TEMPERATURE SECTION -->
+        <div class="customization-section" id="tempSection">
+            <h2 class="section-title">Temperature:</h2>
+            <div class="options-group">
+                <input type="radio" id="temp-iced" name="temperature" value="iced" checked>
+                <label for="temp-iced">Iced</label>
+
+                <!-- Hot option wrapped in div for JS -->
+                <div id="hotOption">
+                    <input type="radio" id="temp-hot" name="temperature" value="hot">
+                    <label for="temp-hot">Hot</label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- SIZE SECTION -->
+        <div class="customization-section" id="sizeSection">
+            <h2 class="section-title">Size:</h2>
+            <div class="options-group">
+                <input type="radio" id="size-small" name="drink-size" value="small" checked>
+                <label for="size-small">Small</label>
+
+                <input type="radio" id="size-medium" name="drink-size" value="medium">
+                <label for="size-medium">Medium (+$0.20)</label>
+
+                <input type="radio" id="size-large" name="drink-size" value="large">
+                <label for="size-large">Large (+$0.40)</label>
+            </div>
+        </div>
+
+        <!-- TEA TYPE SECTION -->
+        <div class="customization-section" id="teaSection">
+            <h2 class="section-title">Tea Type:</h2>
+            <div class="options-group">
+                <input type="radio" id="tea-black" name="tea-type" value="black" checked>
+                <label for="tea-black">Black Tea</label>
+
+                <input type="radio" id="tea-green" name="tea-type" value="green">
+                <label for="tea-green">Green Tea</label>
+
+                <input type="radio" id="tea-oolong" name="tea-type" value="oolong">
+                <label for="tea-oolong">Oolong Tea</label>
+            </div>
+        </div>
+
+        <!-- TOPPINGS -->
         <div class="customization-section">
             <h2 class="section-title">Toppings:</h2>
             <div class="options-group toppings-grid">
                 <input type="checkbox" id="topping-pearls" name="toppings" value="pearls">
-                <label for="topping-pearls">Pearls (Boba)</label>
+                <label for="topping-pearls">Pearls</label>
 
                 <input type="checkbox" id="topping-lychee" name="toppings" value="lychee">
                 <label for="topping-lychee">Lychee Jelly</label>
@@ -85,12 +134,13 @@
             </div>
         </div>
 
+        <!-- CONFIRM BUTTON -->
         <div class="popup-footer">
-            <button class="confirm-button" aria-label="Confirm Selection">&#10003;</button>
+            <button class="confirm-button">&#10003;</button>
         </div>
     </div>
 
+    <!-- JS loaded after HTML -->
     <script src="drinkcustom.js"></script>
 </body>
 </html>
-

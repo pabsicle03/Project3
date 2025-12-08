@@ -28,6 +28,7 @@
 
     <!-- Scripts -->
     <script src="../custscript.js" defer></script>
+    <script src="../menu.js" defer></script>
     <script src="../weather.js" defer></script>
 </head>
 <body>
@@ -59,7 +60,7 @@
 
         <div class="main-content-area">
             <div class="sidebar">
-                <!-- Weather Container -->
+                <!-- Weather Widget -->
                 <div id="weatherSidebar" class="weather-widget">
                     <h3>Weather</h3>
                     <div class="weather-info">
@@ -69,38 +70,18 @@
                     <p class="weather-desc">Clear Sky</p>
                 </div>
 
-                <!-- Navigation buttons -->
-                <button class="nav-button">
-                    <a href="customerallmenu.html">All</a>
-                </button>
-                <button class="nav-button">
-                    <a href="custnoncaf.html">Non-Caffienated</a>
-                </button>
-                <button class="nav-button">
-                    <a href="custiceblend.html">Ice-Blended</a>
-                </button>
-                <button class="nav-button">
-                    <a href="custmatcha.html">Matcha</a>
-                </button>
-                <button class="nav-button">
-                    <a href="custfruity.html">Fruity</a>
-                </button>
-                <button class="nav-button">
-                    <a href="custfreshbrew.html">Fresh Brew</a>
-                </button>
-                <button class="nav-button">
-                    <a href="custmilky.html">Milky</a>
-                </button>
-                <button class="nav-button active">
-                    Recommendation
-                </button>
+                <!-- Navigation links -->
+                <a class="nav-button" href="customerallmenu.html">All</a>
+                <a class="nav-button" href="custnoncaf.html">Non-Caffeinated</a>
+                <a class="nav-button" href="custiceblend.html">Ice-Blended</a>
+                <a class="nav-button" href="custmatcha.html">Matcha</a>
+                <a class="nav-button" href="custfruity.html">Fruity</a>
+                <a class="nav-button" href="custfreshbrew.html">Fresh Brew</a>
+                <a class="nav-button" href="custmilky.html">Milky</a>
+                <a class="nav-button active" href="recommendation.html">Recommendation</a>
             </div>
-
             <div class="drink-items-grid"></div>
         </div>
     </div>
-
-    <!-- Menu logic (loads drinks, etc.) -->
-    <script src="../menu.js" defer></script>
 </body>
 </html>

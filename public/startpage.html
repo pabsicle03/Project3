@@ -167,8 +167,10 @@
       e.preventDefault();
       localStorage.setItem('userId', 0);
       localStorage.removeItem('customerName');
+      localStorage.removeItem('customerEmail');
       window.location.href = '/Customer/customerallmenu.html';
     });
+
 
 
     // Show modal
@@ -226,6 +228,7 @@
         // Optional: auto-log them in as customer
         localStorage.setItem("userId", data.customerId);
         localStorage.setItem("customerName", name);
+        localStorage.setItem("customerEmail", email);
 
         registerModal.style.display = 'none';
         window.location.href = "/Customer/customerallmenu.html";
@@ -256,32 +259,30 @@
       return;
     }
 
-    // 🔹 Clear any old guest/customer name so it doesn't linger
     localStorage.removeItem("customerName");
+    localStorage.removeItem("customerEmail");
 
     modal.style.display = 'none';
 
     if (data.role === "manager") {
-      // you can store a manager id if you want, but it's not required
       localStorage.setItem("userId", "manager");
       window.location.href = "/Manager/orderingtrends.html";
 
     } else if (data.role === "cashier") {
-      // cashier: use employeeId returned from /api/login
       localStorage.setItem("userId", data.employeeId);
       window.location.href = "/Cashier/cashierall.html";
 
     } else if (data.role === "customer") {
-      // customer: save their DB id + real name and use that in orders
       localStorage.setItem("userId", data.customerId);
       localStorage.setItem("customerName", data.customerName);
+      localStorage.setItem("customerEmail", data.customerEmail);
       window.location.href = "/Customer/customerallmenu.html";
 
     } else {
-      // fallback: treat as customer
       window.location.href = "/Customer/customerallmenu.html";
     }
 });
+
 
 
 
