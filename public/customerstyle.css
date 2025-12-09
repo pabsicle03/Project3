@@ -600,3 +600,396 @@ margin-bottom: 12px;
     transform: translateY(-1px);
 }
 
+/* ============================================
+   HIGH CONTRAST STYLES FOR FAVORITES
+   Add these to your existing CSS file
+   ============================================ */
+
+/* Favorites Modal */
+body.high-contrast #favoritesModal {
+    background-color: black !important;
+    color: yellow !important;
+    border: 3px solid yellow !important;
+}
+
+/* Favorites Modal Header */
+body.high-contrast #favoritesModal .modal-header {
+    background-color: black !important;
+    color: yellow !important;
+    border-bottom: 2px solid yellow !important;
+}
+
+body.high-contrast #favoritesModal h2 {
+    color: yellow !important;
+}
+
+/* Favorite Button (Save to Favorites) */
+body.high-contrast .favorite-btn {
+    background-color: black !important;
+    color: yellow !important;
+    border: 2px solid yellow !important;
+}
+
+body.high-contrast .favorite-btn:hover {
+    background-color: yellow !important;
+    color: black !important;
+}
+
+/* Favorite Button when Active (favorited) */
+body.high-contrast .favorite-btn.active {
+    background-color: yellow !important;
+    color: black !important;
+    border: 2px solid yellow !important;
+    font-weight: bold;
+}
+
+/* Favorite Label Display */
+body.high-contrast #favoriteLabelDisplay {
+    color: yellow !important;
+    background-color: black !important;
+}
+
+/* Favorite Name Popup */
+body.high-contrast #favoriteNamePopup {
+    background-color: black !important;
+    color: yellow !important;
+    border: 3px solid yellow !important;
+}
+
+body.high-contrast #favoriteNamePopup h3 {
+    color: yellow !important;
+}
+
+/* Favorite Name Input Field */
+body.high-contrast #favoriteNameInput {
+    background-color: black !important;
+    color: yellow !important;
+    border: 2px solid yellow !important;
+}
+
+body.high-contrast #favoriteNameInput::placeholder {
+    color: rgba(255, 255, 0, 0.6) !important;
+}
+
+/* Favorite Name Confirm Button */
+body.high-contrast #favoriteNameConfirm {
+    background-color: black !important;
+    color: yellow !important;
+    border: 2px solid yellow !important;
+}
+
+body.high-contrast #favoriteNameConfirm:hover {
+    background-color: yellow !important;
+    color: black !important;
+}
+
+/* Favorite Dim Background */
+body.high-contrast #favoriteNameDim {
+    background-color: rgba(0, 0, 0, 0.9) !important;
+}
+
+/* Individual Favorite Items in the Modal */
+body.high-contrast .favorite-item,
+body.high-contrast .history-entry {
+    background-color: black !important;
+    color: yellow !important;
+    border: 2px solid yellow !important;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+}
+
+/* Favorite Item Details */
+body.high-contrast .favorite-item strong,
+body.high-contrast .history-entry strong {
+    color: yellow !important;
+}
+
+/* Reorder/Add to Cart buttons in favorites */
+body.high-contrast .reorder-btn,
+body.high-contrast .add-favorite-to-cart-btn {
+    background-color: black !important;
+    color: yellow !important;
+    border: 2px solid yellow !important;
+}
+
+body.high-contrast .reorder-btn:hover,
+body.high-contrast .add-favorite-to-cart-btn:hover {
+    background-color: yellow !important;
+    color: black !important;
+}
+
+/* Delete Favorite button */
+body.high-contrast .delete-favorite-btn,
+body.high-contrast .remove-favorite-btn {
+    background-color: black !important;
+    color: yellow !important;
+    border: 2px solid yellow !important;
+}
+
+body.high-contrast .delete-favorite-btn:hover,
+body.high-contrast .remove-favorite-btn:hover {
+    background-color: yellow !important;
+    color: black !important;
+}
+
+/* Small Close Button */
+body.high-contrast .small-close-btn {
+    background-color: black !important;
+    color: yellow !important;
+    border: 2px solid yellow !important;
+}
+
+body.high-contrast .small-close-btn:hover {
+    background-color: yellow !important;
+    color: black !important;
+}
+
+/* Favorite item customization details (ice, sweetness, etc) */
+body.high-contrast .favorite-details,
+body.high-contrast .customization-details {
+    color: yellow !important;
+}
+
+/* Any text inside favorites */
+body.high-contrast #favoritesModal p,
+body.high-contrast #favoritesModal span,
+body.high-contrast #favoritesModal div {
+    color: yellow !important;
+}
+
+/* Empty favorites message */
+body.high-contrast .empty-favorites-message {
+    color: yellow !important;
+    text-align: center;
+    padding: 20px;
+}
+
+/* Favorites list container */
+body.high-contrast .favorites-list {
+    background-color: black !important;
+}
+
+/* Modal dim background */
+body.high-contrast #modalDim {
+    background-color: rgba(0, 0, 0, 0.95) !important;
+}
+
+/* Ensure all inputs in favorites are visible */
+body.high-contrast #favoritesModal input,
+body.high-contrast #favoritesModal select,
+body.high-contrast #favoritesModal textarea {
+    background-color: black !important;
+    color: yellow !important;
+    border: 2px solid yellow !important;
+}
+
+/* ============================================
+   HIGH CONTRAST STYLES FOR PREVIOUS ORDERS / ORDER HISTORY
+   Add these to your existing CSS file
+   ============================================ */
+
+/* Order History Modal */
+body.high-contrast #orderHistoryModal {
+    background-color: black !important;
+    color: yellow !important;
+    border: 3px solid yellow !important;
+}
+
+/* Order History Modal Header */
+body.high-contrast #orderHistoryModal .modal-header {
+    background-color: black !important;
+    color: yellow !important;
+    border-bottom: 2px solid yellow !important;
+}
+
+body.high-contrast #orderHistoryModal h2 {
+    color: yellow !important;
+}
+
+/* Individual Order History Entries */
+body.high-contrast .history-entry {
+    background-color: black !important;
+    color: yellow !important;
+    border: 2px solid yellow !important;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+}
+
+/* Order History Item Details */
+body.high-contrast .history-entry strong {
+    color: yellow !important;
+    font-weight: bold;
+}
+
+body.high-contrast .history-entry p,
+body.high-contrast .history-entry span,
+body.high-contrast .history-entry div {
+    color: yellow !important;
+}
+
+/* Order Timestamp/Date */
+body.high-contrast .order-timestamp,
+body.high-contrast .order-date {
+    color: yellow !important;
+}
+
+/* Order Details (ice, sweetness, etc) */
+body.high-contrast .order-details,
+body.high-contrast .order-customization {
+    color: yellow !important;
+}
+
+/* Reorder Button */
+body.high-contrast .reorder-btn {
+    background-color: black !important;
+    color: yellow !important;
+    border: 2px solid yellow !important;
+}
+
+body.high-contrast .reorder-btn:hover {
+    background-color: yellow !important;
+    color: black !important;
+}
+
+/* Order ID / Order Number */
+body.high-contrast .order-id,
+body.high-contrast .order-number {
+    color: yellow !important;
+    font-weight: bold;
+}
+
+/* Order Price/Total */
+body.high-contrast .order-price,
+body.high-contrast .order-total {
+    color: yellow !important;
+    font-weight: bold;
+}
+
+/* Payment Method */
+body.high-contrast .payment-method {
+    color: yellow !important;
+}
+
+/* Employee Name (if shown) */
+body.high-contrast .employee-name {
+    color: yellow !important;
+}
+
+/* Toppings list in order history */
+body.high-contrast .order-toppings,
+body.high-contrast .toppings-list {
+    color: yellow !important;
+}
+
+/* Empty order history message */
+body.high-contrast .empty-orders-message,
+body.high-contrast .no-orders-message {
+    color: yellow !important;
+    text-align: center;
+    padding: 20px;
+}
+
+/* Order history list container */
+body.high-contrast .orders-list,
+body.high-contrast .history-list {
+    background-color: black !important;
+}
+
+/* Order status (if applicable) */
+body.high-contrast .order-status {
+    color: yellow !important;
+    border: 1px solid yellow !important;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+/* Drink name in order history */
+body.high-contrast .history-entry .drink-name,
+body.high-contrast .order-drink-name {
+    color: yellow !important;
+    font-weight: bold;
+}
+
+/* Temperature, Ice Level, Sweetness labels */
+body.high-contrast .order-temperature,
+body.high-contrast .order-ice-level,
+body.high-contrast .order-sweetness,
+body.high-contrast .order-tea-type,
+body.high-contrast .order-size {
+    color: yellow !important;
+}
+
+/* Order history close button */
+body.high-contrast #orderHistoryModal .small-close-btn {
+    background-color: black !important;
+    color: yellow !important;
+    border: 2px solid yellow !important;
+}
+
+body.high-contrast #orderHistoryModal .small-close-btn:hover {
+    background-color: yellow !important;
+    color: black !important;
+}
+
+/* Order history scroll container */
+body.high-contrast .order-history-scroll {
+    background-color: black !important;
+}
+
+/* Any links in order history */
+body.high-contrast #orderHistoryModal a {
+    color: yellow !important;
+    text-decoration: underline;
+}
+
+body.high-contrast #orderHistoryModal a:hover {
+    color: black !important;
+    background-color: yellow !important;
+}
+
+/* Ensure all inputs in order history are visible */
+body.high-contrast #orderHistoryModal input,
+body.high-contrast #orderHistoryModal select,
+body.high-contrast #orderHistoryModal textarea {
+    background-color: black !important;
+    color: yellow !important;
+    border: 2px solid yellow !important;
+}
+
+/* Order separator line */
+body.high-contrast .order-separator,
+body.high-contrast .history-separator {
+    border-color: yellow !important;
+}
+
+/* Order info labels */
+body.high-contrast .order-label {
+    color: yellow !important;
+    font-weight: bold;
+}
+
+/* Order quantity (if shown) */
+body.high-contrast .order-quantity,
+body.high-contrast .order-qty {
+    color: yellow !important;
+}
+
+/* Order actions container */
+body.high-contrast .order-actions {
+    background-color: black !important;
+}
+
+/* View details button (if applicable) */
+body.high-contrast .view-order-details-btn {
+    background-color: black !important;
+    color: yellow !important;
+    border: 2px solid yellow !important;
+}
+
+body.high-contrast .view-order-details-btn:hover {
+    background-color: yellow !important;
+    color: black !important;
+}

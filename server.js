@@ -217,11 +217,11 @@ async function handleOrdersPost(req, res) {
 
   try {
     for (const o of orders) {
-      await pool.query(
+        await pool.query(
         `INSERT INTO orders 
           (drink_name, ice_level, sweetness_level, temperature, tea_type, topping_used, 
-           drink_price, topping_price, employee_name, customer_name, payment_method, order_timestamp)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW())`,
+          drink_price, topping_price, employee_name, customer_name, payment_method, order_timestamp)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW())`,
         [
           o.name,
           o.iceLevel,
