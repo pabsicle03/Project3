@@ -867,13 +867,56 @@ export async function loadDrinks(series) {
   });
 })();
 
+// Set up smooth category switching
+function setupCategoryNavigation() {
+  const categoryButtons = document.querySelectorAll('.category-btn');
+  
+  if (!categoryButtons.length) return;
+  
+  categoryButtons.forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      
+      const category = btn.dataset.category;
+      
+      // Update active button state IMMEDIATELY for instant feedback
+      categoryButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      // Add smooth fade-out effect to drink grid
+      const grid = document.querySelector('.drink-grid');
+      if (grid) {
+        grid.style.transition = 'opacity 0.15s ease';
+        grid.style.opacity = '0';
+        
+        // Start loading drinks immediately (don't wait for fade)
+        const drinksPromise = loadDrinks(category);
+        
+        // Wait just enough for fade-out to complete
+        setTimeout(async () => {
+          await drinksPromise; // Ensure drinks are loaded
+          
+          // Fade back in quickly
+          grid.style.transition = 'opacity 0.2s ease';
+          grid.style.opacity = '1';
+        }, 150);
+      }
+    });
+  });
+}
+
 // Initialize cashier page
 async function init() {
   loadCart();
   buildCartPanel();
+  
+  // Load initial category
   const series = pageSeriesFromPath();
   await loadDrinks(series);
   refreshCartUI();
+  
+  // Set up category navigation for smooth switching
+  setupCategoryNavigation();
 }
 
 document.addEventListener("DOMContentLoaded", init);

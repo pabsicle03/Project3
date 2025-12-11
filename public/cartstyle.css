@@ -519,3 +519,22 @@ body.text-large .drink-price {
     transform: translateY(-1px) !important;
 }
 
+
+.goog-te-banner-frame.skiptranslate,
+.goog-te-banner-frame {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+body {
+    top: 0 !important;
+}
+#google_translate_element, .goog-te-gadget-icon {
+    display: none !important;
+}
+
+.skiptranslate > iframe { 
+  height: 0 !important;
+  border-style: none;
+  box-shadow: none;
+}

@@ -26,11 +26,11 @@ function changeTextSize(size) {
   } catch (e) {}
 
   if (size === "small") {
-    alert("Text size set to Small.");
+    alert(tr("Text size set to Small.", "Tamaño de texto establecido a Pequeño."));
   } else if (size === "large") {
-    alert("Text size set to Large.");
+    alert(tr("Text size set to Large.", "Tamaño de texto establecido a Grande."));
   } else {
-    alert("Text size set to Default.");
+    alert(tr("Text size set to Default.", "Tamaño de texto establecido a Predeterminado."));
   }
 }
 
@@ -180,10 +180,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const totalWithTax = subtotal + tax;
 
     if (taxAmountEl) {
-      taxAmountEl.textContent = `$${tax.toFixed(2)}`;
+      // Add smooth transition effect
+      taxAmountEl.style.transition = "opacity 0.3s ease";
+      taxAmountEl.style.opacity = "0.5";
+      
+      setTimeout(() => {
+        taxAmountEl.textContent = `$${tax.toFixed(2)}`;
+        taxAmountEl.style.opacity = "1";
+      }, 150);
     }
 
-    totalPriceEl.textContent = `$${totalWithTax.toFixed(2)}`;
+    // Add smooth transition effect to total
+    totalPriceEl.style.transition = "opacity 0.3s ease";
+    totalPriceEl.style.opacity = "0.5";
+    
+    setTimeout(() => {
+      totalPriceEl.textContent = `$${totalWithTax.toFixed(2)}`;
+      totalPriceEl.style.opacity = "1";
+    }, 150);
   }
 
   recalcTotal();
@@ -212,23 +226,75 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // ----- Remove single item -----
+  // ----- Remove single item with smooth animation -----
   cartContainer.querySelectorAll(".remove-icon").forEach((icon) => {
     icon.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
 
       const index = parseInt(icon.getAttribute("data-index"), 10);
+      const itemDiv = icon.closest(".drink-item");
+      
+      // Update cart data and totals IMMEDIATELY (before animation)
       cart.splice(index, 1);
       localStorage.setItem("cart", JSON.stringify(cart));
-
+      
+      // Update totals immediately so they change with the animation
+      recalcTotal();
+      
+      // Add smooth fade-out and slide animation
+      itemDiv.style.transition = "opacity 0.5s ease, transform 0.5s ease, max-height 0.5s ease, margin 0.5s ease, padding 0.5s ease";
+      itemDiv.style.opacity = "0";
+      itemDiv.style.transform = "translateX(-20px)";
+      itemDiv.style.maxHeight = itemDiv.offsetHeight + "px";
+      
+      // Trigger reflow to ensure initial state is applied
+      itemDiv.offsetHeight;
+      
+      // Collapse the height
+      setTimeout(() => {
+        itemDiv.style.maxHeight = "0";
+        itemDiv.style.marginBottom = "0";
+        itemDiv.style.paddingTop = "0";
+        itemDiv.style.paddingBottom = "0";
+      }, 10);
+      
+      // If this was the last item, show empty message immediately
       if (cart.length === 0) {
-        cartContainer.innerHTML = "<p>Your cart is empty.</p>";
-        totalPriceEl.textContent = "$0.00";
-        if (taxAmountEl) taxAmountEl.textContent = "$0.00";
-      } else {
-        window.location.reload(); // easiest re-render
+        // Create empty message element
+        const emptyMsg = document.createElement("p");
+        emptyMsg.textContent = "Your cart is empty.";
+        emptyMsg.style.opacity = "0";
+        emptyMsg.style.transition = "opacity 0.3s ease";
+        
+        // Add it to the container right away
+        cartContainer.appendChild(emptyMsg);
+        
+        // Fade it in quickly
+        setTimeout(() => {
+          emptyMsg.style.opacity = "1";
+        }, 100);
       }
+      
+      // Wait for animation to complete before cleaning up DOM
+      setTimeout(() => {
+        if (cart.length === 0) {
+          // Clean up - remove the faded item and keep only the empty message
+          cartContainer.innerHTML = "<p>Your cart is empty.</p>";
+        } else {
+          // Remove the element from DOM
+          itemDiv.remove();
+          
+          // Update all remaining data-index attributes
+          cartContainer.querySelectorAll(".drink-item").forEach((item, newIndex) => {
+            item.querySelector(".remove-icon").setAttribute("data-index", newIndex);
+            const qtyInput = item.querySelector(".qty-input");
+            if (qtyInput) qtyInput.setAttribute("data-index", newIndex);
+            const favBtn = item.querySelector(".favorite-save-btn");
+            if (favBtn) favBtn.setAttribute("data-index", newIndex);
+          });
+        }
+      }, 520); // Slightly longer than transition to ensure smooth completion
     });
   });
 
@@ -251,7 +317,7 @@ document.addEventListener("DOMContentLoaded", () => {
       };
 
       if (await window.isFavoriteAlready(drinkConfig)) {
-        alert("This drink is already in your favorites.");
+        alert(tr("This drink is already in your favorites.", "Este bebida ya está en tus favoritos."));
         return;
       }
 
@@ -271,7 +337,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!dim || !popup || !nameInputEl || !confirmBtn || !cancelBtn) {
         const defaultLabel = item.name || "Favorite Drink";
         const nameInput = window.prompt(
-          "Optional: Give this favorite a name:",
+          tr("Optional: Give this favorite a name:", "Opcional: Darle un nombre a este favorito:"),
           defaultLabel
         );
 
@@ -342,7 +408,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".payment-btn").forEach((btn) => {
     btn.addEventListener("click", async () => {
       if (cart.length === 0) {
-        alert("Your cart is empty!");
+        alert(tr("Your cart is empty!", "Tu carrito está vacío."));
         return;
       }
 
@@ -352,7 +418,7 @@ document.addEventListener("DOMContentLoaded", () => {
       } else if (paymentMethod.includes("card")) {
         paymentMethod = "card";
       } else {
-        paymentMethod = window.confirm("Are you paying with cash? Click Cancel for card.")
+        paymentMethod = window.confirm(tr("Are you paying with cash? Click Cancel for card.", "¿Estás pagando en efectivo? Haz clic en Cancelar para pagar con tarjeta."))
           ? "cash"
           : "card";
       }
@@ -362,9 +428,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // If no stored name (guest / google), ask for it
       if (!customerName) {
-        customerName = window.prompt("Please enter your name for the order:");
+        customerName = window.prompt(tr("Please enter your name for the order:", "Por favor ingrese su nombre para el pedido:"));
         if (!customerName || !customerName.trim()) {
-          alert("Name is required to place an order.");
+          alert(tr("Name is required to place an order.", "Se requiere un nombre para realizar el pedido."));
           return;
         }
         customerName = customerName.trim();
@@ -374,7 +440,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       //Receipt flow
       const storedEmail = localStorage.getItem("customerEmail") || null;
-      let wantReceipt = window.confirm("Would you like your receipt emailed to you?");
+      let wantReceipt = window.confirm(tr("Would you like your receipt emailed to you?", "¿Te gustaría que se te envíe el recibo por correo electrónico?"));
       let receiptEmail = null;
       let receiptName = customerName;
 
@@ -386,9 +452,9 @@ document.addEventListener("DOMContentLoaded", () => {
           // guest or no email saved → ask for name + email
           let nameInput = customerName;
           if (!nameInput) {
-            nameInput = window.prompt("Please enter your name for the receipt:");
+            nameInput = window.prompt(tr("Please enter your name for the receipt:", "Por favor ingrese su nombre para el recibo:"));
             if (!nameInput || !nameInput.trim()) {
-              alert("Name is required for the receipt.");
+              alert(tr("Name is required for the receipt.", "Se requiere un nombre para el recibo."));
               wantReceipt = false;
             } else {
               nameInput = nameInput.trim();
@@ -399,9 +465,9 @@ document.addEventListener("DOMContentLoaded", () => {
           }
 
           if (wantReceipt) {
-            const emailInput = window.prompt("Please enter your email for the receipt:");
+            const emailInput = window.prompt(tr("Please enter your email for the receipt:", "Por favor ingrese su correo electrónico para el recibo:"));
             if (!emailInput || !emailInput.trim()) {
-              alert("No email entered. We will not send a receipt.");
+              alert(tr("No email entered. We will not send a receipt.", "No se ingresó correo electrónico. No se enviará un recibo."));
               wantReceipt = false;
             } else {
               receiptEmail = emailInput.trim();
@@ -430,12 +496,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!res.ok) throw new Error("Order submission failed");
 
-        alert("Order placed successfully!");
+        alert(tr("Order placed successfully!", "¡Pedido realizado con éxito!"));
         localStorage.removeItem("cart");
         window.location.href = "/startpage.html";
       } catch (err) {
         console.error(err);
-        alert("Error sending order. Please try again.");
+        alert(tr("Error sending order. Please try again.", "Error al enviar el pedido. Por favor inténtelo de nuevo."));
       }
     });
   });
@@ -459,9 +525,26 @@ document.addEventListener("DOMContentLoaded", () => {
   // ----- Back button → customer menu -----
   const backBtn = document.getElementById("backButton");
   if (backBtn) {
-    backBtn.addEventListener("click", () => {
-      // cart.html lives in /customer/, so go back to that folder's menu
-      window.location.href = "/customer/customerallmenu.html";
+    backBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      
+      // Add fade-out effect
+      document.body.style.transition = "opacity 0.3s ease";
+      document.body.style.opacity = "0";
+      
+      // Navigate after animation completes
+      setTimeout(() => {
+        window.location.href = "/customer/customerallmenu.html";
+      }, 300);
     });
   }
+  
+  // ----- Add fade-in effect on page load -----
+  document.body.style.opacity = "0";
+  document.body.style.transition = "opacity 0.3s ease";
+  
+  // Trigger fade-in after a brief delay to ensure styles are applied
+  setTimeout(() => {
+    document.body.style.opacity = "1";
+  }, 50);
 });

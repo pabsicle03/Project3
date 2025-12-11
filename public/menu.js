@@ -12,15 +12,20 @@ const SERIES_TO_CATEGORY = {
   "Matcha Series": "matcha",
   "Fruit Tea Series": "fruity",
   "Fresh Brew Series": "freshbrew",
-  "Milky Series": "milky"
+  "Milky Series": "milky",
 };
 
 async function initMenu() {
-  const root = document.getElementById("menuRoot") || document.querySelector(".drink-items-grid");
+  const root =
+    document.getElementById("menuRoot") ||
+    document.querySelector(".drink-items-grid");
   if (!root) return;
 
   const PAGE_SERIES = detectSeriesFromUrl();
-  if (!document.getElementById("menuRoot") && root.classList.contains("drink-items-grid")) {
+  if (
+    !document.getElementById("menuRoot") &&
+    root.classList.contains("drink-items-grid")
+  ) {
     root.innerHTML = "";
   }
 
@@ -35,7 +40,7 @@ async function initMenu() {
     MENU_CACHE = data;
 
     const fileName = location.pathname.split("/").pop().toLowerCase();
-    
+
     if (fileName === "recommendation.html") {
       await renderWeatherRecommendation(root);
       return;
@@ -47,7 +52,7 @@ async function initMenu() {
       const grid = document.createElement("div");
       grid.className = "drink-items-grid";
       container.appendChild(grid);
-      
+
       // Render ALL drinks with their categories
       Object.entries(MENU_CACHE.series).forEach(([seriesName, drinks]) => {
         const category = SERIES_TO_CATEGORY[seriesName] || "other";
@@ -56,30 +61,35 @@ async function initMenu() {
     } else {
       const seriesName = PAGE_SERIES;
       const category = seriesName ? SERIES_TO_CATEGORY[seriesName] : null;
-      appendDrinks(root, getDrinksForSeries(PAGE_SERIES, MENU_CACHE.series), category);
+      appendDrinks(
+        root,
+        getDrinksForSeries(PAGE_SERIES, MENU_CACHE.series),
+        category
+      );
     }
   } catch (err) {
     console.error(err);
-    const target = document.getElementById("menuRoot") || document.querySelector(".drink-items-grid");
+    const target =
+      document.getElementById("menuRoot") ||
+      document.querySelector(".drink-items-grid");
     if (target) {
       target.innerHTML = `<p style="padding:1rem;color:#b00;">Failed to load menu from <code>http://localhost:3000/api/menu</code>. Is the backend running?</p>`;
     }
   }
 }
 
-/* ------------------ Weather Recommendation ------------------ */
 async function renderWeatherRecommendation(root) {
   root.innerHTML = `<p style="padding:10px;">Loading recommendation...</p>`;
 
   let attempts = 0;
-  while (!window.weatherData && attempts < 20) { 
-    await new Promise(res => setTimeout(res, 200)); 
-    attempts++; 
+  while (!window.weatherData && attempts < 20) {
+    await new Promise((res) => setTimeout(res, 200));
+    attempts++;
   }
 
-  if (!MENU_CACHE?.series) { 
-    root.innerHTML = "<p>Menu unavailable.</p>"; 
-    return; 
+  if (!MENU_CACHE?.series) {
+    root.innerHTML = "<p>Menu unavailable.</p>";
+    return;
   }
 
   const weather = window.weatherData;
@@ -90,9 +100,9 @@ async function renderWeatherRecommendation(root) {
   msg.className = "weather-recommendation-text";
   msg.style.fontWeight = "bold";
   msg.style.padding = "10px 0";
-  
+
   let recommendedSeries = [];
-  
+
   if (!weather) {
     msg.textContent = "Weather data unavailable. Showing all drinks 🍹";
     recommendedSeries = Object.entries(MENU_CACHE.series);
@@ -100,20 +110,22 @@ async function renderWeatherRecommendation(root) {
     msg.textContent = "It's hot today! Try Ice Blended or Fruity 🌞";
     recommendedSeries = [
       ["Ice Blended Series", MENU_CACHE.series["Ice Blended Series"] || []],
-      ["Fruit Tea Series", MENU_CACHE.series["Fruit Tea Series"] || []]
+      ["Fruit Tea Series", MENU_CACHE.series["Fruit Tea Series"] || []],
     ];
   } else if (weather.main.temp <= 55) {
     msg.textContent = "Chilly! Milky or Fresh Brew ❄️";
     recommendedSeries = [
       ["Milky Series", MENU_CACHE.series["Milky Series"] || []],
-      ["Fresh Brew Series", MENU_CACHE.series["Fresh Brew Series"] || []]
+      ["Fresh Brew Series", MENU_CACHE.series["Fresh Brew Series"] || []],
     ];
-  } else if (weather.weather[0].main.toLowerCase().includes("rain") || 
-             weather.weather[0].main.toLowerCase().includes("storm")) {
+  } else if (
+    weather.weather[0].main.toLowerCase().includes("rain") ||
+    weather.weather[0].main.toLowerCase().includes("storm")
+  ) {
     msg.textContent = "Rainy day! Matcha or Milky 🌧️";
     recommendedSeries = [
       ["Matcha Series", MENU_CACHE.series["Matcha Series"] || []],
-      ["Milky Series", MENU_CACHE.series["Milky Series"] || []]
+      ["Milky Series", MENU_CACHE.series["Milky Series"] || []],
     ];
   } else {
     msg.textContent = "Perfect weather for any drink! 🍹";
@@ -133,21 +145,20 @@ async function renderWeatherRecommendation(root) {
   });
 }
 
-/* ------------------ Drink Helpers ------------------ */
 function detectSeriesFromUrl() {
   const file = (location.pathname.split("/").pop() || "").toLowerCase();
   const base = file.replace(/\.html?$/i, "");
 
   const SERIES_MAP = {
-    custnoncaf:    "Non-Caffeinated Series",
-    custiceblend:  "Ice Blended Series",
-    custmatcha:    "Matcha Series",
-    custfruity:    "Fruit Tea Series",
+    custnoncaf: "Non-Caffeinated Series",
+    custiceblend: "Ice Blended Series",
+    custmatcha: "Matcha Series",
+    custfruity: "Fruit Tea Series",
     custfreshbrew: "Fresh Brew Series",
-    custmilky:     "Milky Series",
+    custmilky: "Milky Series",
     customerallmenu: null,
-    index:           null,
-    all:             null
+    index: null,
+    all: null,
   };
 
   return Object.prototype.hasOwnProperty.call(SERIES_MAP, base)
@@ -164,7 +175,7 @@ function getDrinksForSeries(seriesName, seriesObj) {
 
 function appendDrinks(gridEl, drinks, category = null) {
   if (!Array.isArray(drinks) || drinks.length === 0) {
-    if (!gridEl.querySelector('.drink-item')) {
+    if (!gridEl.querySelector(".drink-item")) {
       gridEl.innerHTML = `<p class="empty">No drinks available.</p>`;
     }
     return;
@@ -172,15 +183,17 @@ function appendDrinks(gridEl, drinks, category = null) {
 
   const fr = document.createDocumentFragment();
 
-  drinks.forEach(d => {
+  drinks.forEach((d) => {
     const price = toNumber(d.drink_price);
     const oos = isFinite(+d.qty_remaining) && +d.qty_remaining <= 0;
     const name = d.drink_name || "Unnamed";
-    const img = d.file_name ? `/Images/${d.file_name}` : `/Images/placeholder.png`;
-    
+    const img = d.file_name
+      ? `/Images/${d.file_name}`
+      : `/Images/placeholder.png`;
+
     // Get hot_option and tea_options from drink data
-    const hotOption = d.hot_option === true || d.hot_option === 't';
-    const teaOptions = d.tea_options === true || d.tea_options === 't';
+    const hotOption = d.hot_option === true || d.hot_option === "t";
+    const teaOptions = d.tea_options === true || d.tea_options === "t";
 
     // Determine category
     let drinkCategory = category;
@@ -193,7 +206,7 @@ function appendDrinks(gridEl, drinks, category = null) {
     tile.dataset.name = name;
     tile.dataset.price = String(price);
     tile.dataset.imageUrl = img;
-    
+
     // Add hot_option and tea_options as data attributes
     tile.dataset.hotOption = String(hotOption);
     tile.dataset.teaOptions = String(teaOptions);
@@ -207,7 +220,9 @@ function appendDrinks(gridEl, drinks, category = null) {
 
     tile.innerHTML = `
       <div class="drink-image-wrapper">
-        <img src="${escapeAttr(img)}" alt="${escapeAttr(name)}" loading="lazy">
+        <img src="${escapeAttr(img)}" alt="${escapeAttr(
+      name
+    )}" loading="lazy">
         ${oos ? `<div class="oos-badge">Out of stock</div>` : ``}
       </div>
       <div class="drink-name">${escapeHtml(name)}</div>
@@ -215,15 +230,20 @@ function appendDrinks(gridEl, drinks, category = null) {
     `;
 
     const imgEl = tile.querySelector("img");
-    imgEl.addEventListener("error", () => { imgEl.src = "Images/placeholder.png"; });
+    imgEl.addEventListener("error", () => {
+      imgEl.src = "Images/placeholder.png";
+    });
 
     // Pre-build drink object with hot_option and tea_options
     const drink = {
-      id: name.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, ""),
+      id: name
+        .toLowerCase()
+        .replace(/\s+/g, "_")
+        .replace(/[^a-z0-9_]/g, ""),
       name,
       basePrice: price,
       hot_option: hotOption,
-      tea_options: teaOptions
+      tea_options: teaOptions,
     };
 
     let lastTapTime = 0;
@@ -231,6 +251,18 @@ function appendDrinks(gridEl, drinks, category = null) {
     tile.addEventListener("click", (e) => {
       if (tile.classList.contains("disabled")) return;
 
+      const mobilityEnabled =
+        localStorage.getItem("mobilityAssist") === "true";
+
+      // If Mobility Assist is OFF → single tap opens customization
+      if (!mobilityEnabled) {
+        if (typeof window.openMenuCustomizationModal === "function") {
+          window.openMenuCustomizationModal(drink);
+        }
+        return;
+      }
+
+      // Mobility Assist ON → require a quick double-tap
       const now = Date.now();
 
       if (now - lastTapTime < 1000) {
@@ -270,15 +302,15 @@ function escapeAttr(s) {
   return escapeHtml(String(s)).replaceAll("`", "&#96;");
 }
 
-/* ------------------ Modal with Favorites, Temperature, and Tea Type ------------------ */
 (function () {
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener("DOMContentLoaded", () => {
     // Inject modal + overlay if missing
-    if (!document.getElementById('customizeModal')) {
-      const modal = document.createElement('div');
-      modal.id = 'customizeModal';
-      modal.className = 'customization-popup';
-      modal.style.cssText = 'display:none; position:fixed; inset:0; margin:auto; z-index:1000; max-height:80vh; overflow-y:auto;';
+    if (!document.getElementById("customizeModal")) {
+      const modal = document.createElement("div");
+      modal.id = "customizeModal";
+      modal.className = "customization-popup";
+      modal.style.cssText =
+        "display:none; position:fixed; inset:0; margin:auto; z-index:1000; max-height:80vh; overflow-y:auto;";
 
       modal.innerHTML = `
         <!-- ICE SECTION -->
@@ -381,9 +413,10 @@ function escapeAttr(s) {
         </div>
       `;
 
-      const dim = document.createElement('div');
-      dim.id = 'modalDim';
-      dim.style.cssText = 'display:none; position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:999;';
+      const dim = document.createElement("div");
+      dim.id = "modalDim";
+      dim.style.cssText =
+        "display:none; position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:999;";
 
       document.body.appendChild(dim);
       document.body.appendChild(modal);
@@ -393,9 +426,9 @@ function escapeAttr(s) {
     let isFavorited = false;
     let label = "";
 
-    const favBtn = document.getElementById("toggleFavoriteBtn");
-    if (favBtn && window.isGuestUser && window.isGuestUser()) {
-      favBtn.style.display = "none";
+    const favBtnToggle = document.getElementById("toggleFavoriteBtn");
+    if (favBtnToggle && window.isGuestUser && window.isGuestUser()) {
+      favBtnToggle.style.display = "none";
     }
 
     // Favorite toggle button handler
@@ -405,20 +438,27 @@ function escapeAttr(s) {
       const btn = e.target;
 
       // Read current customization values
-      const iceLevel = document.querySelector('input[name="ice-level"]:checked')?.value || "regular";
-      const sweetness = document.querySelector('input[name="sweet-level"]:checked')?.value || "100%";
+      const iceLevel =
+        document.querySelector('input[name="ice-level"]:checked')?.value ||
+        "regular";
+      const sweetness =
+        document.querySelector('input[name="sweet-level"]:checked')?.value ||
+        "100%";
       const toppings = Array.from(
         document.querySelectorAll('input[name="toppings"]:checked')
-      ).map(cb => cb.value);
+      ).map((cb) => cb.value);
 
       const drinkConfig = {
         name: activeDrink.name,
         iceLevel,
         sweetness,
-        toppings
+        toppings,
       };
 
-      if (window.isFavoriteAlready && await window.isFavoriteAlready(drinkConfig)) {
+      if (
+        window.isFavoriteAlready &&
+        (await window.isFavoriteAlready(drinkConfig))
+      ) {
         alert("This drink is already in your favorites.");
         return;
       }
@@ -476,7 +516,9 @@ function escapeAttr(s) {
           btn.classList.add("active");
           btn.textContent = "Favorited";
 
-          const labelDisplay = document.getElementById("favoriteLabelDisplay");
+          const labelDisplay = document.getElementById(
+            "favoriteLabelDisplay"
+          );
           if (labelDisplay) {
             labelDisplay.textContent = `Saved as: ${label}`;
           }
@@ -488,58 +530,64 @@ function escapeAttr(s) {
       }
     });
 
-    const modal = document.getElementById('customizeModal');
-    const dim = document.getElementById('modalDim');
+    const modal = document.getElementById("customizeModal");
+    const dim = document.getElementById("modalDim");
 
     const openModal = (drink) => {
       activeDrink = drink;
 
       // Reset defaults
-      (document.getElementById('ice-regular') || {}).checked = true;
-      (document.getElementById('sweet-normal') || {}).checked = true;
-      (document.getElementById('temp-iced') || {}).checked = true;
-      (document.getElementById('tea-black') || {}).checked = true;
-      document.querySelectorAll('input[name="toppings"]').forEach(cb => (cb.checked = false));
+      (document.getElementById("ice-regular") || {}).checked = true;
+      (document.getElementById("sweet-normal") || {}).checked = true;
+      (document.getElementById("temp-iced") || {}).checked = true;
+      (document.getElementById("tea-black") || {}).checked = true;
+      document
+        .querySelectorAll('input[name="toppings"]')
+        .forEach((cb) => (cb.checked = false));
 
       // Show/hide Temperature and Tea sections based on drink capabilities
       const hotAllowed = drink.hot_option === true;
       const teaAllowed = drink.tea_options === true;
 
-      const tempSection = document.getElementById('modal-tempSection');
-      const teaSection = document.getElementById('modal-teaSection');
-      const hotOption = document.getElementById('modal-hotOption');
+      const tempSection = document.getElementById("modal-tempSection");
+      const teaSection = document.getElementById("modal-teaSection");
+      const hotOption = document.getElementById("modal-hotOption");
 
       if (!hotAllowed && hotOption) {
-        hotOption.style.display = 'none';
+        hotOption.style.display = "none";
       } else if (hotOption) {
-        hotOption.style.display = 'inline-block';
+        hotOption.style.display = "inline-block";
       }
 
       if (!teaAllowed && teaSection) {
-        teaSection.style.display = 'none';
+        teaSection.style.display = "none";
       } else if (teaSection) {
-        teaSection.style.display = '';
+        teaSection.style.display = "";
       }
 
       // Hide ice if hot selected
-      const tempRadios = document.querySelectorAll('input[name="temperature"]');
-      const iceSection = document.getElementById('modal-iceSection');
-      
+      const tempRadios = document.querySelectorAll(
+        'input[name="temperature"]'
+      );
+      const iceSection = document.getElementById("modal-iceSection");
+
       // Remove old listeners and add new ones
-      tempRadios.forEach(radio => {
+      tempRadios.forEach((radio) => {
         const newRadio = radio.cloneNode(true);
         radio.parentNode.replaceChild(newRadio, radio);
       });
 
-      document.querySelectorAll('input[name="temperature"]').forEach(radio => {
-        radio.addEventListener('change', () => {
-          if (document.getElementById('temp-hot')?.checked) {
-            iceSection.style.display = 'none';
-          } else {
-            iceSection.style.display = '';
-          }
+      document
+        .querySelectorAll('input[name="temperature"]')
+        .forEach((radio) => {
+          radio.addEventListener("change", () => {
+            if (document.getElementById("temp-hot")?.checked) {
+              iceSection.style.display = "none";
+            } else {
+              iceSection.style.display = "";
+            }
+          });
         });
-      });
 
       // Reset favorite state
       isFavorited = false;
@@ -552,129 +600,144 @@ function escapeAttr(s) {
       const labelDisplay = document.getElementById("favoriteLabelDisplay");
       if (labelDisplay) labelDisplay.textContent = "";
 
-      modal.style.display = 'block';
-      dim.style.display = 'block';
+      modal.style.display = "block";
+      dim.style.display = "block";
     };
 
     const closeModal = () => {
-      modal.style.display = 'none';
-      dim.style.display = 'none';
-      
+      modal.style.display = "none";
+      dim.style.display = "none";
+
       // Reset ice section visibility
-      const iceSection = document.getElementById('modal-iceSection');
+      const iceSection = document.getElementById("modal-iceSection");
       if (iceSection) {
-        iceSection.style.display = '';
+        iceSection.style.display = "";
       }
-      
+
       // Reset temperature to iced
-      const tempIced = document.getElementById('temp-iced');
+      const tempIced = document.getElementById("temp-iced");
       if (tempIced) {
         tempIced.checked = true;
       }
-      
+
       activeDrink = null;
       isFavorited = false;
       label = "";
     };
 
-    document.getElementById('cancelCustomize').addEventListener('click', closeModal);
-    dim.addEventListener('click', closeModal);
+    document
+      .getElementById("cancelCustomize")
+      .addEventListener("click", closeModal);
+    dim.addEventListener("click", closeModal);
 
     // Expose globally
     window.openMenuCustomizationModal = openModal;
 
     // Confirm → add to cart
-    // Confirm → add to cart
-    document.getElementById('confirmCustomize').addEventListener('click', () => {
-      if (!activeDrink) return;
+    document
+      .getElementById("confirmCustomize")
+      .addEventListener("click", () => {
+        if (!activeDrink) return;
 
-      const temperature = document.querySelector('input[name="temperature"]:checked')?.value || 'iced';
-      
-      let iceVal = 'regular';
-      if (temperature !== 'hot') {
-        iceVal = document.querySelector('input[name="ice-level"]:checked')?.value || 'regular';
-      }
+        const temperature =
+          document.querySelector('input[name="temperature"]:checked')
+            ?.value || "iced";
 
-      const sweetVal = document.querySelector('input[name="sweet-level"]:checked')?.value || '100%';
-      
-      let teaType = null;
-      if (activeDrink.tea_options === true) {
-        teaType = document.querySelector('input[name="tea-type"]:checked')?.value || 'black';
-      }
-
-            const toppings = Array.from(
-        document.querySelectorAll('input[name="toppings"]:checked')
-      ).map(cb => cb.value);
-
-      const toppingsCost = toppings.length * TOPPING_PRICE;
-
-      // 🔹 SIZE LOGIC
-      const sizeRadio = document.querySelector('input[name="drink-size"]:checked');
-      const size = sizeRadio ? sizeRadio.value : "small";
-
-      let sizeUpcharge = 0;
-      if (size === "medium") sizeUpcharge = 0.20;
-      else if (size === "large") sizeUpcharge = 0.40;
-
-      const finalBasePrice = Number(
-        (activeDrink.basePrice + sizeUpcharge).toFixed(2)
-      );
-      const lineTotal = +(finalBasePrice + toppingsCost).toFixed(2);
-
-      const lineItem = {
-        id: activeDrink.id,
-        name: activeDrink.name,
-        size,                    // store size separately
-        basePrice: finalBasePrice,
-        temperature,
-        iceLevel: iceVal,
-        sweetness: sweetVal,
-        teaType,              // ← captured here
-        hot_option: activeDrink.hot_option === true,
-        tea_options: activeDrink.tea_options === true,
-        toppings,
-        toppingsCost,
-        lineTotal,
-        qty: 1
-      };
-
-
-      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      cart.push(lineItem);
-      localStorage.setItem('cart', JSON.stringify(cart));
-
-      // Save favorite if toggled
-      if (!window.isGuestUser || !window.isGuestUser()) {
-        if (isFavorited && window.saveFavorite) {
-          const favoritePayload = {
-            name: activeDrink.name,
-            basePrice: activeDrink.basePrice,
-            iceLevel: iceVal,
-            sweetness: sweetVal,
-            temperature: temperature,    // ← USE THE VARIABLE
-            teaType: teaType,           // ← USE THE VARIABLE
-            toppings,
-            toppingsCost,
-            label: label
-          };
-          window.saveFavorite(favoritePayload, "customize-modal");
+        let iceVal = "regular";
+        if (temperature !== "hot") {
+          iceVal =
+            document.querySelector('input[name="ice-level"]:checked')
+              ?.value || "regular";
         }
-      }
 
-      // Reset favorite state
-      isFavorited = false;
-      label = "";
+        const sweetVal =
+          document.querySelector('input[name="sweet-level"]:checked')
+            ?.value || "100%";
 
-      closeModal();
-      alert('Added to cart!');
+        let teaType = null;
+        if (activeDrink.tea_options === true) {
+          teaType =
+            document.querySelector('input[name="tea-type"]:checked')
+              ?.value || "black";
+        }
 
-      // Update cart badge if function exists
-      if (typeof updateCartBadge === 'function') updateCartBadge();
+        const toppings = Array.from(
+          document.querySelectorAll('input[name="toppings"]:checked')
+        ).map((cb) => cb.value);
 
-      // Refresh for recommendation page
-      if (location.pathname.split("/").pop().toLowerCase() === "recommendation.html") {
-        renderWeatherRecommendation(document.getElementById("menuRoot"));
-      }
-    });
+        const toppingsCost = toppings.length * TOPPING_PRICE;
+
+        // SIZE LOGIC
+        const sizeRadio = document.querySelector(
+          'input[name="drink-size"]:checked'
+        );
+        const size = sizeRadio ? sizeRadio.value : "small";
+
+        let sizeUpcharge = 0;
+        if (size === "medium") sizeUpcharge = 0.2;
+        else if (size === "large") sizeUpcharge = 0.4;
+
+        const finalBasePrice = Number(
+          (activeDrink.basePrice + sizeUpcharge).toFixed(2)
+        );
+        const lineTotal = +(finalBasePrice + toppingsCost).toFixed(2);
+
+        const lineItem = {
+          id: activeDrink.id,
+          name: activeDrink.name,
+          size, // store size separately
+          basePrice: finalBasePrice,
+          temperature,
+          iceLevel: iceVal,
+          sweetness: sweetVal,
+          teaType, // ← captured here
+          hot_option: activeDrink.hot_option === true,
+          tea_options: activeDrink.tea_options === true,
+          toppings,
+          toppingsCost,
+          lineTotal,
+          qty: 1,
+        };
+
+        const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+        cart.push(lineItem);
+        localStorage.setItem("cart", JSON.stringify(cart));
+
+        // Save favorite if toggled
+        if (!window.isGuestUser || !window.isGuestUser()) {
+          if (isFavorited && window.saveFavorite) {
+            const favoritePayload = {
+              name: activeDrink.name,
+              basePrice: activeDrink.basePrice,
+              iceLevel: iceVal,
+              sweetness: sweetVal,
+              temperature: temperature, // ← USE THE VARIABLE
+              teaType: teaType, // ← USE THE VARIABLE
+              toppings,
+              toppingsCost,
+              label: label,
+            };
+            window.saveFavorite(favoritePayload, "customize-modal");
+          }
+        }
+
+        // Reset favorite state
+        isFavorited = false;
+        label = "";
+
+        closeModal();
+        alert(tr("Added to cart!", "¡Agregado al carrito!"));
+
+        // Update cart badge if function exists
+        if (typeof updateCartBadge === "function") updateCartBadge();
+
+        // Refresh for recommendation page
+        if (
+          location.pathname.split("/").pop().toLowerCase() ===
+          "recommendation.html"
+        ) {
+          renderWeatherRecommendation(document.getElementById("menuRoot"));
+        }
+      });
   });
 })();
