@@ -291,6 +291,26 @@
     function handleCredentialResponse(response) {
       const token = response.credential;
       localStorage.setItem('googleToken', token);
+      
+      // Decode JWT token to get user info
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        
+        const userData = JSON.parse(jsonPayload);
+        
+        // Set customer name and email from Google account
+        localStorage.setItem('customerName', userData.name || userData.email);
+        localStorage.setItem('customerEmail', userData.email);
+        
+        console.log('Google login successful:', userData.name, userData.email);
+      } catch (err) {
+        console.error('Failed to decode Google token:', err);
+      }
+      
       modal.style.display = 'none';
       window.location.href = '/Customer/customerallmenu.html';
     }
