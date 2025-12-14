@@ -337,3 +337,19 @@ body.high-contrast #message-box {
     border-radius: 8px;
     cursor: pointer;
 }
+
+/* High contrast for quantity +/- buttons */
+body.high-contrast .qty-group button {
+    background-color: black !important;
+    color: yellow !important;
+    border: 2px solid yellow !important;
+}
+
+body.high-contrast .qty-group button:hover {
+    background-color: yellow !important;
+    color: black !important;
+}
+
+body.high-contrast .qty-group span {
+    color: yellow !important;
+}
