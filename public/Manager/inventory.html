@@ -88,6 +88,113 @@
         </div>
     </section>
 
+    <!-- Add Menu Item / Drink Modal -->
+    <div id="addDrinkModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-card">
+        <div class="modal-header">
+        <h2 class="modal-title">Add Menu Item</h2>
+        <button id="closeAddDrinkModal" class="modal-x" type="button">✕</button>
+        </div>
+
+        <form id="addDrinkForm" class="modal-body">
+        <div class="modal-row">
+            <label class="modal-label">Name</label>
+            <input id="newDrinkName" class="modal-input" type="text" placeholder="e.g., Classic Tea" required />
+        </div>
+
+        <div class="modal-row">
+            <label class="modal-label">Price</label>
+            <input
+                id="newDrinkPrice"
+                class="modal-input"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="4.75"
+                required
+            />
+        </div>
+        <div class="modal-row">
+            <label class="modal-label">Image filename (optional)</label>
+            <input id="newDrinkImage" class="modal-input" type="text" placeholder="default.png" />
+            <small style="display:block; margin-top:6px; opacity:.75;">
+                Leave blank to use <b>default.png</b>. File must exist in <code>public/Images</code>.
+            </small>
+        </div>
+
+        <div class="modal-row checks">
+            <label class="check">
+            <input id="newDrinkTeaOptions" type="checkbox" />
+            Offered with tea options
+            </label>
+
+            <label class="check">
+            <input id="newDrinkHotOption" type="checkbox" />
+            Offered as hot option
+            </label>
+        </div>
+
+        <div class="modal-row">
+            <label class="modal-label">Ingredients (recipe)</label>
+            <div id="ingredientsList" class="ingredients-list">
+            <!-- populated by inventory.js -->
+            </div>
+        </div>
+
+        <div class="modal-actions">
+            <button id="saveNewDrinkBtn" class="modal-btn primary" type="submit">Add Item</button>
+            <button id="cancelNewDrinkBtn" class="modal-btn" type="button">Cancel</button>
+        </div>
+        </form>
+    </div>
+    </div>
+
+    <style>
+    /* Theme-friendly modal styling (works with your existing manager.css) */
+    .hidden{display:none !important;}
+    .modal{
+        position:fixed; inset:0; background:rgba(0,0,0,.55);
+        display:flex; align-items:center; justify-content:center; padding:24px;
+        z-index:9999;
+    }
+    .modal-card{
+        width:min(740px, 95vw);
+        background:#fff; border-radius:16px; box-shadow:0 12px 40px rgba(0,0,0,.25);
+        overflow:hidden;
+    }
+    .modal-header{
+        display:flex; align-items:center; justify-content:space-between;
+        padding:16px 18px; border-bottom:1px solid rgba(0,0,0,.1);
+    }
+    .modal-title{margin:0; font-size:20px;}
+    .modal-x{
+        border:none; background:transparent; font-size:20px; cursor:pointer;
+        padding:6px 10px; border-radius:10px;
+    }
+    .modal-body{padding:16px 18px;}
+    .modal-row{margin-bottom:14px;}
+    .modal-label{display:block; font-weight:600; margin-bottom:6px;}
+    .modal-input{
+        width:100%; padding:10px 12px; border:2px solid #ddd; border-radius:12px;
+        font-size:14px;
+    }
+    .checks{display:flex; gap:18px; flex-wrap:wrap;}
+    .check{display:flex; gap:8px; align-items:center; font-weight:600;}
+    .ingredients-list{
+        display:grid; grid-template-columns:repeat(2, minmax(0, 1fr));
+        gap:10px; max-height:240px; overflow:auto;
+        padding:10px; border:2px solid #eee; border-radius:12px;
+        background:#fafafa;
+    }
+    .modal-actions{display:flex; gap:12px; justify-content:flex-end; margin-top:18px;}
+    .modal-btn{
+        padding:10px 14px; border-radius:12px; border:2px solid #111;
+        background:#fff; cursor:pointer; font-weight:700;
+    }
+    .modal-btn.primary{background:#111; color:#fff;}
+    </style>
+
+
     <script src="inventory.js"></script>
 </body>
 </html>

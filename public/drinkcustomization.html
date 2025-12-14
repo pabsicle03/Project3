@@ -36,6 +36,9 @@
         <div class="customization-section">
             <h2 class="section-title">Sweetness Level:</h2>
             <div class="options-group">
+                <input type="radio" id="sweet-extra" name="sweet-level" value="125%" checked>
+                <label for="sweet-extra">Extra 125% (+$0.20)</label>
+
                 <input type="radio" id="sweet-normal" name="sweet-level" value="100%" checked>
                 <label for="sweet-normal">Normal 100%</label>
 
@@ -97,6 +100,17 @@
                 <label for="tea-oolong">Oolong Tea</label>
             </div>
         </div>
+
+        <!-- QUANTITY SECTION -->
+        <div class="customization-section" id="qtySection">
+        <h2 class="section-title">Quantity:</h2>
+        <div class="options-group qty-group">
+            <button type="button" id="qtyMinus">−</button>
+            <span id="qtyValue">1</span>
+            <button type="button" id="qtyPlus">+</button>
+        </div>
+        </div>
+
 
         <!-- TOPPINGS -->
         <div class="customization-section">

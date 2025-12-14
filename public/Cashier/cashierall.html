@@ -11,14 +11,25 @@
         <div class="backbutton">
             <button class="nav-style exit"><a href="../startpage.html">Back</a></button>
         </div>
+        <div class="cashier-search">
+        <input
+            id="cashierSearch"
+            class="cashier-search-input"
+            type="text"
+            placeholder="Search drinks (e.g., coffee)..."
+            autocomplete="off"
+        />
+        <button id="cashierSearchBtn" class="cashier-search-btn" type="button">Search</button>
+        </div>
         <nav class="navbar">
-            <button class="nav-style active">All</button>
-            <button class="nav-style"><a href="cashiernoncaf.html">Non-Caffienated</a></button>
-            <button class="nav-style"><a href="cashier_matcha.html">Matcha</a></button>
-            <button class="nav-style"><a href="cashier_iceblend.html">Ice-Blended</a></button>
-            <button class="nav-style"><a href="cashier_fruity.html">Fruity</a></button>
-            <button class="nav-style"><a href="cashier_freshbrew.html">Fresh Brew</a></button>
-            <button class="nav-style"><a href="cashier_milky.html">Milky</a></button>
+            <button class="nav-style active category-btn" data-category="all">All</button>
+            <button class="nav-style category-btn" data-category="noncaf">Non-Caffeinated</button>
+            <button class="nav-style category-btn" data-category="matcha">Matcha</button>
+            <button class="nav-style category-btn" data-category="iceblend">Ice-Blended</button>
+            <button class="nav-style category-btn" data-category="fruity">Fruity</button>
+            <button class="nav-style category-btn" data-category="freshbrew">Fresh Brew</button>
+            <button class="nav-style category-btn" data-category="milky">Milky</button>
+            <button class="nav-style category-btn" data-category="seasonal">Seasonal</button>
         </nav>
     </header>
     

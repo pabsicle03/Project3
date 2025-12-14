@@ -4,13 +4,13 @@ console.log("=== DRINKCUSTOM.JS LOADED ===");
   // Get selected drink from sessionStorage
   const selectedDrinkRaw = sessionStorage.getItem("selectedDrink");
   console.log("1. Raw sessionStorage data:", selectedDrinkRaw);
-  
+
   if (!selectedDrinkRaw) {
     console.log("2. No drink found, redirecting...");
     window.location.href = "customerallmenu.html";
     return;
   }
-  
+
   const selectedDrink = JSON.parse(selectedDrinkRaw);
   console.log("3. Parsed drink object:", selectedDrink);
   console.log("4. hot_option value:", selectedDrink.hot_option);
@@ -62,7 +62,7 @@ console.log("=== DRINKCUSTOM.JS LOADED ===");
   } else {
     console.log("8. Hot option SHOULD be visible");
   }
-  
+
   if (!teaAllowed) {
     console.log("9. Hiding tea section");
     if (teaSection) teaSection.style.display = "none";
@@ -80,6 +80,28 @@ console.log("=== DRINKCUSTOM.JS LOADED ===");
       }
     });
   });
+
+  // ✅ QUANTITY (wire up once, not inside confirm)
+  let quantity = 1;
+  const qtyValue = document.getElementById("qtyValue");
+  const qtyPlus = document.getElementById("qtyPlus");
+  const qtyMinus = document.getElementById("qtyMinus");
+
+  if (qtyValue) qtyValue.textContent = "1";
+
+  if (qtyPlus) {
+    qtyPlus.addEventListener("click", () => {
+      quantity++;
+      if (qtyValue) qtyValue.textContent = String(quantity);
+    });
+  }
+
+  if (qtyMinus) {
+    qtyMinus.addEventListener("click", () => {
+      if (quantity > 1) quantity--;
+      if (qtyValue) qtyValue.textContent = String(quantity);
+    });
+  }
 
   // Confirm button logic
   const confirmBtn = document.querySelector(".confirm-button");
@@ -99,6 +121,9 @@ console.log("=== DRINKCUSTOM.JS LOADED ===");
       document.querySelector("input[name='sweet-level']:checked")?.value ||
       "100%";
 
+    let sweetnessUpcharge = 0;
+    if (sweet === "125%") sweetnessUpcharge = 0.20;
+
     let teaType = null;
     if (teaAllowed) {
       teaType =
@@ -113,7 +138,7 @@ console.log("=== DRINKCUSTOM.JS LOADED ===");
     const TOPPING_PRICE = 0.75;
     const toppingsCost = toppings.length * TOPPING_PRICE;
 
-    // === SIZE LOGIC ===
+    // SIZE LOGIC
     const size =
       document.querySelector("input[name='drink-size']:checked")?.value ||
       "small";
@@ -123,7 +148,7 @@ console.log("=== DRINKCUSTOM.JS LOADED ===");
     else if (size === "large") sizeUpcharge = 0.40;
 
     const finalBasePrice = Number(
-      (selectedDrink.basePrice + sizeUpcharge).toFixed(2)
+      (selectedDrink.basePrice + sizeUpcharge + sweetnessUpcharge).toFixed(2)
     );
 
     const lineItem = {
@@ -139,8 +164,9 @@ console.log("=== DRINKCUSTOM.JS LOADED ===");
       tea_options: teaAllowed,
       toppings,
       toppingsCost,
-      lineTotal: +(finalBasePrice + toppingsCost).toFixed(2),
-      qty: 1,
+      qty: quantity,
+      // ✅ fix precedence + toFixed usage
+      lineTotal: +(((finalBasePrice + toppingsCost) * quantity).toFixed(2)),
     };
 
     const cart = JSON.parse(localStorage.getItem("cart") || "[]");

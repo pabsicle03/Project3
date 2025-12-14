@@ -97,6 +97,29 @@ body {
     box-sizing: border-box;
 }
 
+.qty-group {
+display: flex;
+align-items: center;
+gap: 14px;
+}
+
+.qty-group button {
+background: #990000;
+color: white;
+border: none;
+border-radius: 8px;
+font-size: 1.2em;
+width: 40px;
+height: 40px;
+cursor: pointer;
+}
+
+.qty-group span {
+font-size: 1.3em;
+min-width: 24px;
+text-align: center;
+}
+
 .popup-footer {
     display: flex;
     justify-content: flex-end;

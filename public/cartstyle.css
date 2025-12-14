@@ -519,6 +519,18 @@ body.text-large .drink-price {
     transform: translateY(-1px) !important;
 }
 
+/* High contrast for favorite save button */
+body.high-contrast .favorite-save-btn {
+    background-color: black !important;
+    color: yellow !important;
+    border: 3px solid yellow !important;
+}
+
+body.high-contrast .favorite-save-btn:hover {
+    background-color: #333 !important;
+    color: yellow !important;
+    border: 3px solid yellow !important;
+}
 
 .goog-te-banner-frame.skiptranslate,
 .goog-te-banner-frame {

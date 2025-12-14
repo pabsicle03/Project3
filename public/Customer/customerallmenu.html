@@ -31,9 +31,12 @@
     
     <div class="menu-container">
         <div class="top-bar">
-            <div class="dropdown">
+            <!-- LEFT: Back + Accessibility + History/Favorites -->
+            <div class="topbar-left">
+                <div class="dropdown">
                 <button class="accessibility-btn"><a href="../startpage.html">Back</a></button>
                 <button class="accessibility-btn" onclick="toggleDropdown()">Accessibility</button>
+
                 <div class="dropdown-content" id="accessibilityDropdown">
                     <a href="#" class="lang-option" data-lang="en">English</a>
                     <a href="#" class="lang-option" data-lang="es">Español</a>
@@ -43,12 +46,25 @@
                     <a href="#" id="contrastToggle">Toggle High Contrast</a>
                     <a href="#" id="mobilityAssistToggle">Mobility Assist: Off</a>
                 </div>
+                </div>
+
+                <button id="viewHistoryBtn" class="accessibility-btn">Previous Orders</button>
+                <button id="viewFavoritesBtn" class="accessibility-btn">Favorites</button>
             </div>
 
-            <!-- Top-bar actions: Previous Orders + Favorites (MOVED OUTSIDE DROPDOWN) -->
-            <button id="viewHistoryBtn" class="accessibility-btn">Previous Orders</button>
-            <button id="viewFavoritesBtn" class="accessibility-btn">Favorites</button>
+            <!-- CENTER: Search -->
+            <div class="topbar-search">
+                <input
+                id="customerSearch"
+                class="menu-search"
+                type="text"
+                placeholder="Search drinks (e.g., coffee)..."
+                autocomplete="off"
+                />
+                <button id="customerSearchBtn" class="accessibility-btn">Search</button>
+            </div>
 
+            <!-- RIGHT: Cart -->
             <div class="cart-icon">
                 <i class="fa-solid fa-cart-shopping"></i>
                 <span id="cartCount" class="cart-badge"></span>
@@ -115,6 +131,7 @@
                 <button class="nav-button" data-category="fruity">Fruity</button>
                 <button class="nav-button" data-category="freshbrew">Fresh Brew</button>
                 <button class="nav-button" data-category="milky">Milky</button>
+                <button class="nav-button" data-category="seasonal">Seasonal</button>
                 <button class="nav-button" data-category="recommendation">Recommendation</button>
             </div>
 

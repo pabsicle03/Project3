@@ -32,10 +32,7 @@ const pool = new Pool({
   user: process.env.PGUSER,
   password: process.env.PGPASSWORD,
   database: process.env.PGDATABASE,
-  ssl:
-    process.env.PGSSL === "true"
-      ? { rejectUnauthorized: false }
-      : false,
+  ssl: process.env.PGSSL === "true" ? { rejectUnauthorized: false } : false,
 });
 
 // ---------------------- EMAIL (NODEMAILER) ----------------------
@@ -54,12 +51,7 @@ async function sendReceiptEmail(to, name, paymentMethod, orders) {
   if (!to) return;
 
   const lines = orders.map((o, idx) => {
-    const qty =
-      o.quantity != null
-        ? o.quantity
-        : o.qty != null
-        ? o.qty
-        : 1;
+    const qty = o.quantity != null ? o.quantity : o.qty != null ? o.qty : 1;
 
     const toppings =
       Array.isArray(o.toppings) && o.toppings.length
@@ -67,8 +59,7 @@ async function sendReceiptEmail(to, name, paymentMethod, orders) {
         : "";
 
     const unitPrice = (o.basePrice || 0) + (o.toppingsCost || 0);
-    const lineTotal =
-      o.lineTotal != null ? o.lineTotal : unitPrice * qty;
+    const lineTotal = o.lineTotal != null ? o.lineTotal : unitPrice * qty;
 
     return `${idx + 1}. ${o.name} x${qty}${toppings} - $${lineTotal.toFixed(
       2
@@ -76,16 +67,10 @@ async function sendReceiptEmail(to, name, paymentMethod, orders) {
   });
 
   const subtotal = orders.reduce((sum, o) => {
-    const qty =
-      o.quantity != null
-        ? o.quantity
-        : o.qty != null
-        ? o.qty
-        : 1;
+    const qty = o.quantity != null ? o.quantity : o.qty != null ? o.qty : 1;
 
     const unitPrice = (o.basePrice || 0) + (o.toppingsCost || 0);
-    const lineTotal =
-      o.lineTotal != null ? o.lineTotal : unitPrice * qty;
+    const lineTotal = o.lineTotal != null ? o.lineTotal : unitPrice * qty;
 
     return sum + lineTotal;
   }, 0);
@@ -170,7 +155,7 @@ app.get("/api/drinks", async (req, res) => {
         ? `/Images/${r.file_name}`
         : `/Images/placeholder.png`,
       hotOption: r.hot_option,
-      teaOptions: r.tea_options
+      teaOptions: r.tea_options,
     }));
 
     res.json({ drinks: data });
@@ -200,6 +185,54 @@ app.get("/api/employee/:id", async (req, res) => {
 });
 
 // ---------------------- ORDERS (CASHIER + CUSTOMER) ----------------------
+
+// Accept BOTH forms:
+// - Customer values: "pearls", "lychee", "icecream", ...
+// - Cashier labels: "Pearls (Boba)", "Lychee Jelly", ...
+const TOPPING_NAME_MAP = {
+  // customer-style values
+  pearls: "pearls",
+  lychee: "lychee_jelly",
+  coffee: "coffee_jelly",
+  honey: "honey_jelly",
+  pudding: "pudding",
+  crystal: "crystal_boba",
+  icecream: "ice_cream",
+  creama: "creama",
+  mango: "mango_pop_boba",
+  strawberry: "strawberry_pop_boba",
+
+  // cashier-style labels
+  "Pearls (Boba)": "pearls",
+  "Lychee Jelly": "lychee_jelly",
+  "Coffee Jelly": "coffee_jelly",
+  "Honey Jelly": "honey_jelly",
+  "Crystal Boba": "crystal_boba",
+  "Ice Cream": "ice_cream",
+  "Mango Pop Boba": "mango_pop_boba",
+  "Strawberry Pop Boba": "strawberry_pop_boba",
+  Pudding: "pudding",
+  Creama: "creama",
+};
+
+function resolveTeaIngredient(teaType) {
+  if (!teaType) return null;
+
+  const t = String(teaType).trim().toLowerCase();
+
+  // Accept both "green" and "Green Tea", etc.
+  if (t.includes("green")) return "green_tea";
+  if (t.includes("thai")) return "thai_tea";
+  if (t.includes("oolong")) return "oolong_tea";
+  if (t.includes("black")) return "black_tea";
+
+  // If frontend already sends "green_tea" etc.
+  if (t.endsWith("_tea")) return t;
+
+  // Default: treat as "black"
+  return "black_tea";
+}
+
 async function handleOrdersPost(req, res) {
   const {
     orders,
@@ -215,18 +248,23 @@ async function handleOrdersPost(req, res) {
     return res.status(400).json({ error: "No orders provided" });
   }
 
+  const client = await pool.connect();
+
   try {
+    await client.query("BEGIN");
+
     for (const o of orders) {
-        await pool.query(
+      // ---------------- 1) INSERT ORDER ----------------
+      await client.query(
         `INSERT INTO orders 
           (drink_name, ice_level, sweetness_level, temperature, tea_type, topping_used, 
-          drink_price, topping_price, employee_name, customer_name, payment_method, order_timestamp)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW())`,
+           drink_price, topping_price, employee_name, customer_name, payment_method, order_timestamp)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW())`,
         [
           o.name,
           o.iceLevel,
           o.sweetness,
-          o.temperature || 'iced',
+          o.temperature || "iced",
           o.teaType || null,
           Array.isArray(o.toppings) ? o.toppings.join(", ") : "",
           o.basePrice,
@@ -236,9 +274,120 @@ async function handleOrdersPost(req, res) {
           payment_method || null,
         ]
       );
+
+      // ---------------- 2) INGREDIENTS: drink -> recipe ----------------
+      const recipeResult = await client.query(
+        `SELECT ingredient_name
+           FROM menu_item_ingredients
+          WHERE menu_item_name = $1`,
+        [o.name]
+      );
+
+      // Build a set of recipe ingredients (used to avoid double-decrement with toppings)
+      const recipeSet = new Set(
+        recipeResult.rows.map((rr) => String(rr.ingredient_name))
+      );
+
+      // Tea override: if recipe includes black_tea, decrement selected tea instead
+      const selectedTeaIng = resolveTeaIngredient(o.teaType);
+
+      for (const rr of recipeResult.rows) {
+        let ing = String(rr.ingredient_name);
+
+        if (ing === "black_tea" && selectedTeaIng) {
+          ing = selectedTeaIng;
+        }
+
+        await client.query(
+          `UPDATE ingredients
+              SET quantity = quantity - 1
+            WHERE name = $1`,
+          [ing]
+        );
+      }
+
+      // ---------------- 2B) TOPPINGS decrement (ingredients table) ----------------
+      // Decrement each selected topping once, BUT skip if that ingredient was already in the base recipe
+      if (Array.isArray(o.toppings)) {
+        for (const raw of o.toppings) {
+          const key = String(raw).trim();
+          const ingName = TOPPING_NAME_MAP[key];
+
+          if (!ingName) continue;
+
+          // Prevent double-decrement if your drink recipe already contains this ingredient
+          if (recipeSet.has(ingName)) continue;
+
+          await client.query(
+            `UPDATE ingredients
+                SET quantity = quantity - 1
+              WHERE name = $1`,
+            [ingName]
+          );
+        }
+      }
+
+      // ---------------- 3) SUPPLIES ----------------
+      // Always decrement lids + napkins
+      await client.query(
+        `UPDATE supplies SET quantity = quantity - 1 WHERE name = 'lids'`
+      );
+      await client.query(
+        `UPDATE supplies SET quantity = quantity - 1 WHERE name = 'napkins'`
+      );
+
+      // Cup depends on size (frontend MUST send o.size)
+      const size = (o.size || "small").toLowerCase();
+      let cupName = "small_cup";
+      if (size === "medium") cupName = "medium_cup";
+      else if (size === "large" || size === "big") cupName = "big_cup";
+
+      await client.query(
+        `UPDATE supplies SET quantity = quantity - 1 WHERE name = $1`,
+        [cupName]
+      );
+
+      // Wide straw when needed:
+      // - any topping implies wide straw if it's boba/jelly/pudding/pop boba
+      // - OR recipe already includes boba-type ingredients
+      const toppingsText = Array.isArray(o.toppings)
+        ? o.toppings.join(" ").toLowerCase()
+        : "";
+
+      const needsWideStraw =
+        // toppings
+        toppingsText.includes("pearls") ||
+        toppingsText.includes("boba") ||
+        toppingsText.includes("crystal") ||
+        toppingsText.includes("pudding") ||
+        toppingsText.includes("jelly") ||
+        toppingsText.includes("lychee") ||
+        toppingsText.includes("pop") ||
+        toppingsText.includes("ice cream") ||
+        // recipe contents
+        recipeResult.rows.some((r) => {
+          const x = String(r.ingredient_name).toLowerCase();
+          return (
+            x.includes("pearls") ||
+            x.includes("crystal_boba") ||
+            x.includes("pudding") ||
+            x.includes("coffee_jelly") ||
+            x.includes("lychee") ||
+            x.includes("mango_pop_boba") ||
+            x.includes("strawberry_pop_boba")
+          );
+        });
+
+      if (needsWideStraw) {
+        await client.query(
+          `UPDATE supplies SET quantity = quantity - 1 WHERE name = 'wide_straws'`
+        );
+      }
     }
 
-    // Try sending receipt email if requested
+    await client.query("COMMIT");
+
+    // Receipt (unchanged)
     if (want_receipt && receipt_email) {
       try {
         await sendReceiptEmail(
@@ -252,10 +401,15 @@ async function handleOrdersPost(req, res) {
       }
     }
 
-    res.status(200).json({ ok: true, message: "Orders inserted successfully" });
+    res
+      .status(200)
+      .json({ ok: true, message: "Orders inserted + inventory updated" });
   } catch (err) {
-    console.error("Error inserting orders:", err);
-    res.status(500).json({ ok: false, error: "Database insert failed" });
+    await client.query("ROLLBACK");
+    console.error("Error inserting orders/updating inventory:", err);
+    res.status(500).json({ ok: false, error: "Database insert/update failed" });
+  } finally {
+    client.release();
   }
 }
 
@@ -274,7 +428,7 @@ app.post("/api/favorites", async (req, res) => {
     topping_used,
     drink_price,
     topping_price,
-    label
+    label,
   } = req.body;
 
   try {
@@ -288,13 +442,21 @@ app.post("/api/favorites", async (req, res) => {
        AND temperature = $5
        AND COALESCE(tea_type, '') = COALESCE($6, '')
        AND topping_used = $7`,
-      [customer_name, drink_name, ice_level, sweetness_level, temperature || 'iced', tea_type || '', topping_used]
+      [
+        customer_name,
+        drink_name,
+        ice_level,
+        sweetness_level,
+        temperature || "iced",
+        tea_type || "",
+        topping_used,
+      ]
     );
 
     if (dup.rows.length > 0) {
       return res.json({
         ok: false,
-        error: "DUPLICATE"
+        error: "DUPLICATE",
       });
     }
 
@@ -307,12 +469,12 @@ app.post("/api/favorites", async (req, res) => {
         drink_name,
         ice_level,
         sweetness_level,
-        temperature || 'iced',
+        temperature || "iced",
         tea_type || null,
         topping_used,
         drink_price,
         topping_price,
-        label
+        label,
       ]
     );
 
@@ -740,6 +902,100 @@ app.delete("/api/manager/inventory/:type", async (req, res) => {
   }
 });
 
+
+// ---------------------- ADD MENU ITEM + RECIPE (MANAGER) ----------------------
+app.post("/api/manager/menuitems/with-recipe", async (req, res) => {
+  const { name, price, teaOptions, hotOption, imageFile, ingredients } = req.body;
+
+  if (!name || price == null || !Array.isArray(ingredients) || ingredients.length === 0) {
+    return res.status(400).json({ ok: false, error: "Missing name/price/ingredients" });
+  }
+
+  const imageName = imageFile && String(imageFile).trim() ? String(imageFile).trim() : "default.png";
+
+  const drinkName = String(name).trim();
+  const drinkPrice = Number(price);
+
+  if (!drinkName || !Number.isFinite(drinkPrice) || drinkPrice < 0) {
+    return res.status(400).json({ ok: false, error: "Invalid name or price" });
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    // 1) Upsert into drinks (source of truth for kiosk menu)
+    const existsDrink = await client.query(
+      `SELECT 1 FROM drinks WHERE drink_name = $1 LIMIT 1`,
+      [drinkName]
+    );
+
+    if (existsDrink.rows.length === 0) {
+      // Default values for new drinks created in manager inventory
+      await client.query(
+        `INSERT INTO drinks (drink_name, drink_price, series_name, qty_remaining, file_name, hot_option, tea_options)
+         VALUES ($1, $2, 'Other', 9999, $5, $3, $4)`,
+        [drinkName, drinkPrice, !!hotOption, !!teaOptions, imageName]
+      );
+    } else {
+      await client.query(
+        `UPDATE drinks
+            SET drink_price = $2,
+                hot_option  = $3,
+                tea_options = $4,
+                file_name = $5
+          WHERE drink_name = $1`,
+        [drinkName, drinkPrice, !!hotOption, !!teaOptions, imageName]
+      );
+    }
+
+    // 2) Keep menu_items (manager inventory table) in sync
+    const existsMenuItem = await client.query(
+      `SELECT 1 FROM menu_items WHERE name = $1 LIMIT 1`,
+      [drinkName]
+    );
+
+    if (existsMenuItem.rows.length === 0) {
+      await client.query(
+        `INSERT INTO menu_items (name, price) VALUES ($1, $2)`,
+        [drinkName, drinkPrice]
+      );
+    } else {
+      await client.query(
+        `UPDATE menu_items SET price = $2 WHERE name = $1`,
+        [drinkName, drinkPrice]
+      );
+    }
+
+    // 3) Replace recipe rows in menu_item_ingredients
+    await client.query(
+      `DELETE FROM menu_item_ingredients WHERE menu_item_name = $1`,
+      [drinkName]
+    );
+
+    // Deduplicate + trim ingredient names
+    const cleanedIngredients = [...new Set(ingredients.map(x => String(x).trim()).filter(Boolean))];
+
+    for (const ing of cleanedIngredients) {
+      await client.query(
+        `INSERT INTO menu_item_ingredients (menu_item_name, ingredient_name)
+         VALUES ($1, $2)`,
+        [drinkName, ing]
+      );
+    }
+
+    await client.query("COMMIT");
+    res.json({ ok: true });
+  } catch (err) {
+    await client.query("ROLLBACK");
+    console.error("Add menu item with recipe error:", err);
+    res.status(500).json({ ok: false, error: err.message });
+  } finally {
+    client.release();
+  }
+});
+
+
 // ---------------------- EMPLOYEES (MANAGER) ----------------------
 app.get("/api/manager/employees", async (req, res) => {
   try {
@@ -797,14 +1053,14 @@ app.delete("/api/manager/employees/:id", async (req, res) => {
 
 // ---------------------- PRODUCT USAGE (MANAGER) ----------------------
 app.get("/api/productusage", async (req, res) => {
-    const { start, end } = req.query;
+  const { start, end } = req.query;
 
-    if (!start || !end) {
-        return res.status(400).json({ error: "Start and end dates required" });
-    }
+  if (!start || !end) {
+    return res.status(400).json({ error: "Start and end dates required" });
+  }
 
-    try {
-        const sql = `
+  try {
+    const sql = `
             SELECT 
                 mi.ingredient_name AS ingredient,
                 COUNT(*) AS times_used
@@ -815,23 +1071,20 @@ app.get("/api/productusage", async (req, res) => {
             GROUP BY mi.ingredient_name
             ORDER BY times_used DESC;
         `;
-        
-        const result = await pool.query(sql, [start, end]);
 
-        res.json(result.rows);
+    const result = await pool.query(sql, [start, end]);
 
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Database query failed" });
-    }
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Database query failed" });
+  }
 });
-
 
 // ---------------------- X-REPORT (MANAGER) ----------------------
 app.get("/api/xreport", async (req, res) => {
   const { date, metric } = req.query;
-  if (!date || !metric)
-    return res.status(400).json({ error: "Missing parameters" });
+  if (!date || !metric) return res.status(400).json({ error: "Missing parameters" });
 
   let sql = "";
   switch (metric) {

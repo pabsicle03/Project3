@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Empty cart
   if (cart.length === 0) {
-    cartContainer.innerHTML = "<p>Your cart is empty.</p>";
+    cartContainer.innerHTML = `<p>${tr("Your cart is empty.", "Tu carrito está vacío.")}</p>`;
     totalPriceEl.textContent = "$0.00";
     return;
   }
@@ -112,22 +112,25 @@ document.addEventListener("DOMContentLoaded", () => {
     itemDiv.classList.add("drink-item");
 
     // Build options display string
-        let optionsText = `Size: ${item.size || "small"}, ` + `Ice Level: ${item.iceLevel || "regular"}, ` + `Sweetness: ${item.sweetness || "100%"}`;
+    let optionsText = `${tr("Size", "Tamaño")}: ${item.size || "small"}, ` + 
+                      `${tr("Ice Level", "Nivel de hielo")}: ${item.iceLevel || "regular"}, ` + 
+                      `${tr("Sweetness", "Dulzura")}: ${item.sweetness || "100%"}`;
+    
     // Add temperature if present
     if (item.temperature) {
-      optionsText += `, Temperature: ${item.temperature}`;
+      optionsText += `, ${tr("Temperature", "Temperatura")}: ${item.temperature}`;
     }
     
     // Add tea type if present
     if (item.teaType) {
-      optionsText += `, Tea: ${item.teaType}`;
+      optionsText += `, ${tr("Tea", "Té")}: ${item.teaType}`;
     }
     
     // Add toppings
-    optionsText += `, Toppings: ${
+    optionsText += `, ${tr("Toppings", "Complementos")}: ${
       item.toppings && item.toppings.length
         ? item.toppings.join(", ")
-        : "None"
+        : tr("None", "Ninguno")
     }`;
 
     itemDiv.innerHTML = `
@@ -139,7 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
             ${optionsText}
           </div>
           <div class="quantity-row">
-            Quantity:
+            ${tr("Quantity", "Cantidad")}:
             <input
               type="number"
               min="1"
@@ -150,7 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
           <div class="favorite-row">
             <button class="favorite-save-btn" data-index="${index}" style="margin-top:6px; padding:4px 8px; border-radius:6px; border:none; background:#d33; color:#fff; cursor:pointer; font-size:0.9em;">
-              Save as Favorite
+              ${tr("Save as Favorite", "Guardar como favorito")}
             </button>
           </div>
         </div>
@@ -263,7 +266,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (cart.length === 0) {
         // Create empty message element
         const emptyMsg = document.createElement("p");
-        emptyMsg.textContent = "Your cart is empty.";
+        emptyMsg.textContent = tr("Your cart is empty.", "Tu carrito está vacío.");
         emptyMsg.style.opacity = "0";
         emptyMsg.style.transition = "opacity 0.3s ease";
         
@@ -280,7 +283,7 @@ document.addEventListener("DOMContentLoaded", () => {
       setTimeout(() => {
         if (cart.length === 0) {
           // Clean up - remove the faded item and keep only the empty message
-          cartContainer.innerHTML = "<p>Your cart is empty.</p>";
+          cartContainer.innerHTML = `<p>${tr("Your cart is empty.", "Tu carrito está vacío.")}</p>`;
         } else {
           // Remove the element from DOM
           itemDiv.remove();
@@ -317,12 +320,12 @@ document.addEventListener("DOMContentLoaded", () => {
       };
 
       if (await window.isFavoriteAlready(drinkConfig)) {
-        alert(tr("This drink is already in your favorites.", "Este bebida ya está en tus favoritos."));
+        alert(tr("This drink is already in your favorites.", "Esta bebida ya está en tus favoritos."));
         return;
       }
 
       if (typeof window.saveFavorite !== "function") {
-        alert("Favorites are not available on this page.");
+        alert(tr("Favorites are not available on this page.", "Los favoritos no están disponibles en esta página."));
         return;
       }
 
@@ -335,9 +338,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // If any are missing, fall back to prompt()
       if (!dim || !popup || !nameInputEl || !confirmBtn || !cancelBtn) {
-        const defaultLabel = item.name || "Favorite Drink";
+        const defaultLabel = item.name || tr("Favorite Drink", "Bebida favorita");
         const nameInput = window.prompt(
-          tr("Optional: Give this favorite a name:", "Opcional: Darle un nombre a este favorito:"),
+          tr("Optional: Give this favorite a name:", "Opcional: Dale un nombre a este favorito:"),
           defaultLabel
         );
 
@@ -364,7 +367,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // Use popup flow
-      const defaultLabel = item.name || "Favorite Drink";
+      const defaultLabel = item.name || tr("Favorite Drink", "Bebida favorita");
       nameInputEl.value = defaultLabel;
 
       dim.style.display = "block";
@@ -408,7 +411,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".payment-btn").forEach((btn) => {
     btn.addEventListener("click", async () => {
       if (cart.length === 0) {
-        alert(tr("Your cart is empty!", "Tu carrito está vacío."));
+        alert(tr("Your cart is empty!", "¡Tu carrito está vacío!"));
         return;
       }
 
@@ -428,7 +431,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // If no stored name (guest / google), ask for it
       if (!customerName) {
-        customerName = window.prompt(tr("Please enter your name for the order:", "Por favor ingrese su nombre para el pedido:"));
+        customerName = window.prompt(tr("Please enter your name for the order:", "Por favor ingresa tu nombre para el pedido:"));
         if (!customerName || !customerName.trim()) {
           alert(tr("Name is required to place an order.", "Se requiere un nombre para realizar el pedido."));
           return;
@@ -452,7 +455,7 @@ document.addEventListener("DOMContentLoaded", () => {
           // guest or no email saved → ask for name + email
           let nameInput = customerName;
           if (!nameInput) {
-            nameInput = window.prompt(tr("Please enter your name for the receipt:", "Por favor ingrese su nombre para el recibo:"));
+            nameInput = window.prompt(tr("Please enter your name for the receipt:", "Por favor ingresa tu nombre para el recibo:"));
             if (!nameInput || !nameInput.trim()) {
               alert(tr("Name is required for the receipt.", "Se requiere un nombre para el recibo."));
               wantReceipt = false;
@@ -465,7 +468,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
 
           if (wantReceipt) {
-            const emailInput = window.prompt(tr("Please enter your email for the receipt:", "Por favor ingrese su correo electrónico para el recibo:"));
+            const emailInput = window.prompt(tr("Please enter your email for the receipt:", "Por favor ingresa tu correo electrónico para el recibo:"));
             if (!emailInput || !emailInput.trim()) {
               alert(tr("No email entered. We will not send a receipt.", "No se ingresó correo electrónico. No se enviará un recibo."));
               wantReceipt = false;
@@ -501,7 +504,7 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href = "/startpage.html";
       } catch (err) {
         console.error(err);
-        alert(tr("Error sending order. Please try again.", "Error al enviar el pedido. Por favor inténtelo de nuevo."));
+        alert(tr("Error sending order. Please try again.", "Error al enviar el pedido. Por favor inténtalo de nuevo."));
       }
     });
   });
@@ -510,10 +513,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const cancelBtn = document.querySelector(".cancel-order-btn");
   if (cancelBtn) {
     cancelBtn.addEventListener("click", () => {
-      if (confirm("Are you sure you want to cancel all orders?")) {
+      if (confirm(tr("Are you sure you want to cancel all orders?", "¿Estás seguro de que quieres cancelar todos los pedidos?"))) {
         localStorage.removeItem("cart");
         cart = [];
-        cartContainer.innerHTML = "<p>Your cart is empty.</p>";
+        cartContainer.innerHTML = `<p>${tr("Your cart is empty.", "Tu carrito está vacío.")}</p>`;
         totalPriceEl.textContent = "$0.00";
 
         const taxAmountEl2 = document.querySelector(".tax-amount");
@@ -534,7 +537,7 @@ document.addEventListener("DOMContentLoaded", () => {
       
       // Navigate after animation completes
       setTimeout(() => {
-        window.location.href = "/customer/customerallmenu.html";
+        window.location.href = "/Customer/customerallmenu.html";
       }, 300);
     });
   }

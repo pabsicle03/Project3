@@ -794,6 +794,63 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+function normalizeWords(str){
+  return String(str || "")
+    .toLowerCase()
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+}
+
+function applyCustomerSearchFilter(query) {
+  const grid = document.querySelector(".drink-items-grid");
+  if (!grid) return;
+
+  // hide weather banner while searching
+  const banner = document.querySelector(".weather-recommendation-banner");
+  if (banner) banner.remove();
+
+  const words = normalizeWords(query);
+  const tiles = grid.querySelectorAll(".drink-item");
+
+  // If empty, restore whatever category was active
+  if (words.length === 0) {
+    try {
+      const savedCategory = sessionStorage.getItem("currentCategory") || "all";
+      if (typeof window.filterDrinksByCategory === "function") {
+        window.filterDrinksByCategory(savedCategory);
+      }
+    } catch (e) {}
+    return;
+  }
+
+  tiles.forEach((tile) => {
+    const name = (tile.dataset.name || "").toLowerCase();
+
+    // match if ANY searched word is inside the drink name
+    const match = words.some((w) => name.includes(w));
+    tile.style.display = match ? "" : "none";
+  });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const input = document.getElementById("customerSearch");
+  const btn = document.getElementById("customerSearchBtn");
+  if (!input || !btn) return;
+
+  btn.addEventListener("click", () => {
+    applyCustomerSearchFilter(input.value);
+  });
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      applyCustomerSearchFilter(input.value);
+    }
+  });
+});
+
+
 window.showToast = function (text) {
   let toast = document.getElementById("toastMessage");
 
